@@ -1,7 +1,7 @@
 # ✈️ Microservicio de Aerolínea  
 Gestión de vuelos, reservas y pasajeros en un ecosistema turístico con **Java Spring Boot** y **Angular** – Proyecto académico de Arquitectura de Software.  
 
-![image](https://co.pinterest.com/pin/502362533456094150.png)
+![148e0974a7e245fff61ba1aa88f39e89](https://github.com/user-attachments/assets/841b8e5c-d259-4333-ac62-81f5c88f10f0)
 
 ---
 
