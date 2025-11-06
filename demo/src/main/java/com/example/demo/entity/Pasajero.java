@@ -37,7 +37,7 @@ public class Pasajero {
     @JoinColumn(name = "reserva_vuelo_id")
     private Reserva reserva;
 
-    @OneToMany(mappedBy = "pasajero")
-    private List<Reserva> reservas;
+    // @OneToMany(mappedBy = "pasajero")
+    // private List<Reserva> reservas;
 
 }

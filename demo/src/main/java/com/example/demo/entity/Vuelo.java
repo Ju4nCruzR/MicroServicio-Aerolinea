@@ -18,9 +18,10 @@ public class Vuelo {
 
     private String aerolinea; // Ej: "Avianca"
 
-    private String codigoOrigen; // Código IATA del aeropuerto origen (Ej: "BOG")
+    // private String codigoOrigen; // Código IATA del aeropuerto origen (Ej: "BOG")
 
-    private String codigoDestino; // Código IATA del aeropuerto destino (Ej: "MDE")
+    // private String codigoDestino; // Código IATA del aeropuerto destino (Ej:
+    // "MDE")
 
     private LocalDateTime fechaSalida; // Formato: "20251110T090000"
 
@@ -39,11 +40,11 @@ public class Vuelo {
     private String estado; // Enum: "PROGRAMADO", "EN_VUELO", "COMPLETADO", "CANCELADO"
 
     @ManyToOne
-    @JoinColumn(name = "codigo_origen", referencedColumnName = "codigoIATA")
+    @JoinColumn(name = "codigo_origen")
     private Aeropuerto origen;
 
     @ManyToOne
-    @JoinColumn(name = "codigo_destino", referencedColumnName = "codigoIATA")
+    @JoinColumn(name = "codigo_destino")
     private Aeropuerto destino;
 
     @OneToMany(mappedBy = "vuelo")
