@@ -1,0 +1,113 @@
+### ===================================================================
+### PRUEBAS HTTP PARA AEROPUERTO CONTROLLER - ADMINISTRATIVO
+### ===================================================================
+
+### 1. LISTAR TODOS LOS AEROPUERTOS
+GET http://localhost:8080/v1/admin/aeropuertos
+
+### 2. OBTENER AEROPUERTO ESPECÍFICO - Exitoso
+GET http://localhost:8080/v1/admin/aeropuertos/BOG
+
+### 3. OBTENER AEROPUERTO ESPECÍFICO - No encontrado
+GET http://localhost:8080/v1/admin/aeropuertos/XXX
+
+### ===================================================================
+
+### 4. CREAR AEROPUERTO - Exitoso
+POST http://localhost:8080/v1/admin/aeropuertos
+Content-Type: application/json
+
+{
+  "codigoIATA": "CLO",
+  "nombre": "Aeropuerto Alfonso Bonilla Aragón",
+  "ciudad": "Cali",
+  "pais": "Colombia",
+  "codigoICAO": "SKCL"
+}
+
+### 5. CREAR AEROPUERTO - Error código duplicado
+POST http://localhost:8080/v1/admin/aeropuertos
+Content-Type: application/json
+
+{
+  "codigoIATA": "BOG",
+  "nombre": "Aeropuerto Test",
+  "ciudad": "Bogotá",
+  "pais": "Colombia"
+}
+
+### 6. CREAR AEROPUERTO - Error validación
+POST http://localhost:8080/v1/admin/aeropuertos
+Content-Type: application/json
+
+{
+  "codigoIATA": "INVALID",
+  "nombre": "",
+  "ciudad": "",
+  "pais": ""
+}
+
+### ===================================================================
+
+### 7. ACTUALIZAR AEROPUERTO - Exitoso
+PUT http://localhost:8080/v1/admin/aeropuertos/CLO
+Content-Type: application/json
+
+{
+  "codigoIATA": "CLO",
+  "nombre": "Aeropuerto Alfonso Bonilla Aragón Internacional",
+  "ciudad": "Cali",
+  "pais": "Colombia",
+  "codigoICAO": "SKCL"
+}
+
+### 8. ACTUALIZAR AEROPUERTO - No encontrado
+PUT http://localhost:8080/v1/admin/aeropuertos/XXX
+Content-Type: application/json
+
+{
+  "codigoIATA": "XXX",
+  "nombre": "Aeropuerto Test",
+  "ciudad": "Test City",
+  "pais": "Test Country"
+}
+
+### ===================================================================
+
+### 9. ELIMINAR AEROPUERTO - Sin vuelos asociados
+DELETE http://localhost:8080/v1/admin/aeropuertos/CLO
+
+### 10. ELIMINAR AEROPUERTO - Con vuelos asociados (debe fallar)
+DELETE http://localhost:8080/v1/admin/aeropuertos/BOG
+
+### 11. ELIMINAR AEROPUERTO - No encontrado
+DELETE http://localhost:8080/v1/admin/aeropuertos/XXX
+
+### ===================================================================
+### CASOS DE PRUEBA ADICIONALES
+### ===================================================================
+
+### 12. CREAR AEROPUERTO - Solo campos obligatorios
+POST http://localhost:8080/v1/admin/aeropuertos
+Content-Type: application/json
+
+{
+  "codigoIATA": "PEI",
+  "nombre": "Aeropuerto Matecaña",
+  "ciudad": "Pereira",
+  "pais": "Colombia"
+}
+
+### 13. CREAR AEROPUERTO - Con código ICAO
+POST http://localhost:8080/v1/admin/aeropuertos
+Content-Type: application/json
+
+{
+  "codigoIATA": "BGA",
+  "nombre": "Aeropuerto Palonegro",
+  "ciudad": "Bucaramanga", 
+  "pais": "Colombia",
+  "codigoICAO": "SKBG"
+}
+
+### ===================================================================

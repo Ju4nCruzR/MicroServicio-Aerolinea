@@ -1,0 +1,120 @@
+### ===================================================================
+### PRUEBAS HTTP PARA RESERVA ADMIN CONTROLLER - ADMINISTRATIVO
+### ===================================================================
+
+### 1. LISTAR TODAS LAS RESERVAS
+GET http://localhost:8080/v1/admin/reservas
+
+### 2. LISTAR RESERVAS CON FILTRO POR ESTADO
+GET http://localhost:8080/v1/admin/reservas?estado=PENDIENTE
+
+### 3. LISTAR RESERVAS CON FILTRO POR DOCUMENTO CLIENTE (ACTUALIZADO)
+GET http://localhost:8080/v1/admin/reservas?documentoCliente=12345678
+
+### 4. LISTAR RESERVAS CON FILTRO POR VUELO ID
+GET http://localhost:8080/v1/admin/reservas?vueloId=f47ac10b-58cc-4372-a567-0e02b2c3d479
+
+### 5. LISTAR RESERVAS CON MÚLTIPLES FILTROS
+GET http://localhost:8080/v1/admin/reservas?estado=CONFIRMADA&documentoCliente=87654321
+
+### ===================================================================
+
+### 6. OBTENER RESERVA ESPECÍFICA - Exitosa
+GET http://localhost:8080/v1/admin/reservas/RSV1764014904365126
+
+### 7. OBTENER RESERVA ESPECÍFICA - No encontrada
+GET http://localhost:8080/v1/admin/reservas/RESERVA_INEXISTENTE
+
+### ===================================================================
+
+### 8. OBTENER RESERVAS POR VUELO ESPECÍFICO
+GET http://localhost:8080/v1/admin/reservas/vuelo/f47ac10b-58cc-4372-a567-0e02b2c3d479
+
+### 9. OBTENER RESERVAS POR VUELO INEXISTENTE
+GET http://localhost:8080/v1/admin/reservas/vuelo/00000000-0000-0000-0000-000000000000
+
+### ===================================================================
+
+### 10. CAMBIAR ESTADO DE RESERVA - De PENDIENTE a CONFIRMADA
+PUT http://localhost:8080/v1/admin/reservas/RSV1764014904365126/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "CONFIRMADA",
+  "observaciones": "Confirmación administrativa manual"
+}
+
+### 11. CAMBIAR ESTADO DE RESERVA - De CONFIRMADA a CANCELADA
+PUT http://localhost:8080/v1/admin/reservas/RSV1764014904365126/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "CANCELADA",
+  "observaciones": "Cancelación por solicitud del cliente"
+}
+
+### 12. CAMBIAR ESTADO DE RESERVA - Transición inválida
+PUT http://localhost:8080/v1/admin/reservas/RSV1764014904365126/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "PENDIENTE",
+  "observaciones": "Intento de revertir estado"
+}
+
+### 13. CAMBIAR ESTADO DE RESERVA - Reserva inexistente
+PUT http://localhost:8080/v1/admin/reservas/RESERVA_INEXISTENTE/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "CANCELADA",
+  "observaciones": "Test"
+}
+
+### ===================================================================
+
+### 14. CANCELAR RESERVA ADMINISTRATIVAMENTE - Con motivo por defecto
+DELETE http://localhost:8080/v1/admin/reservas/RSV1764014904365126
+
+### 15. CANCELAR RESERVA ADMINISTRATIVAMENTE - Con motivo específico
+DELETE http://localhost:8080/v1/admin/reservas/RSV1764014904365126?motivo=Cancelación por overbooking
+
+### 16. CANCELAR RESERVA ADMINISTRATIVAMENTE - Reserva inexistente
+DELETE http://localhost:8080/v1/admin/reservas/RESERVA_INEXISTENTE
+
+### 17. CANCELAR RESERVA ADMINISTRATIVAMENTE - Estado inválido para cancelación
+DELETE http://localhost:8080/v1/admin/reservas/RESERVA_YA_CANCELADA
+
+### ===================================================================
+### CASOS DE PRUEBA ADICIONALES
+### ===================================================================
+
+### 18. FILTRO POR DOCUMENTO CLIENTE - Múltiples reservas del mismo cliente
+GET http://localhost:8080/v1/admin/reservas?documentoCliente=12345678
+
+### 19. FILTRO POR ESTADO - Reservas confirmadas
+GET http://localhost:8080/v1/admin/reservas?estado=CONFIRMADA
+
+### 20. FILTRO POR ESTADO - Reservas expiradas
+GET http://localhost:8080/v1/admin/reservas?estado=EXPIRADA
+
+### 21. FILTRO POR ESTADO - Reservas canceladas
+GET http://localhost:8080/v1/admin/reservas?estado=CANCELADA
+
+### ===================================================================
+### CASOS EDGE ESPECIALES PARA DOCUMENTO CLIENTE
+### ===================================================================
+
+### 22. BUSCAR RESERVAS DE CLIENTE ESPECÍFICO (POR DOCUMENTO)
+GET http://localhost:8080/v1/admin/reservas?documentoCliente=87654321
+
+### 23. CAMBIAR ESTADO CON OBSERVACIONES LARGAS
+PUT http://localhost:8080/v1/admin/reservas/RSV1764014904365126/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "CANCELADA",
+  "observaciones": "Cancelación administrativa debido a problemas técnicos en el vuelo, se procederá con reembolso completo según políticas de la aerolínea"
+}
+
+### ===================================================================

@@ -91,4 +91,60 @@ public class PasajeroService {
         return pasajeroRepository.existsById(clientId);
     }
 
+    // ========== MÉTODOS ADMINISTRATIVOS ==========
+    
+    public List<PasajeroDTO> listarPasajeros(String tipoDocumento, String numeroDocumento, String nombre) {
+        return pasajeroRepository.findAll().stream()
+                .filter(pasajero -> {
+                    // tipoDocumento no está en la entidad, ignorar este filtro
+                    boolean coincideNumero = numeroDocumento == null || numeroDocumento.equals(pasajero.getNumeroDocumento());
+                    boolean coincideNombre = nombre == null || 
+                        (pasajero.getNombre() != null && pasajero.getNombre().toLowerCase().contains(nombre.toLowerCase()));
+                    
+                    return coincideNumero && coincideNombre;
+                })
+                .map(pasajeroMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public PasajeroDTO consultarPasajero(java.util.UUID pasajeroId) {
+        // Convertir UUID a String para buscar por clientId
+        String clientId = pasajeroId.toString();
+        return consultarPasajero(clientId);
+    }
+    
+    public PasajeroDTO actualizarPasajero(Pasajero pasajero) {
+        if (!pasajeroRepository.existsById(pasajero.getClientId())) {
+            return null; // No existe
+        }
+        
+        Pasajero savedPasajero = pasajeroRepository.save(pasajero);
+        return pasajeroMapper.toDTO(savedPasajero);
+    }
+    
+    public boolean eliminarPasajero(java.util.UUID pasajeroId) {
+        String clientId = pasajeroId.toString();
+        
+        if (!pasajeroRepository.existsById(clientId)) {
+            return false;
+        }
+        
+        try {
+            pasajeroRepository.deleteById(clientId);
+            return true;
+        } catch (Exception e) {
+            // Si hay restricciones de integridad referencial
+            return false;
+        }
+    }
+    
+    public PasajeroDTO buscarPorDocumento(String tipoDocumento, String numeroDocumento) {
+        // tipoDocumento no está en la entidad, solo buscar por número
+        return pasajeroRepository.findAll().stream()
+                .filter(p -> numeroDocumento.equals(p.getNumeroDocumento()))
+                .findFirst()
+                .map(pasajeroMapper::toDTO)
+                .orElse(null);
+    }
+
 }

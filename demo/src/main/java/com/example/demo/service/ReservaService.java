@@ -224,6 +224,76 @@ public class ReservaService {
                 .map(reservaMapper::toDTO)
                 .collect(Collectors.toList());
     }
+
+    // ========== MÉTODOS ADMINISTRATIVOS ==========
+    
+    public List<ReservaDTO> listarTodasReservas() {
+        return reservaRepository.findAll().stream()
+                .map(reservaMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<ReservaDTO> buscarReservasPorClienteId(String clienteId) {
+        // Filtrar por documentoContacto que actúa como clienteId
+        return reservaRepository.findAll().stream()
+                .filter(reserva -> clienteId.equals(reserva.getDocumentoContacto()))
+                .map(reservaMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<ReservaDTO> buscarReservasPorEstado(String estado) {
+        return reservaRepository.findAll().stream()
+                .filter(reserva -> estado.equals(reserva.getEstado()))
+                .map(reservaMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<ReservaDTO> buscarReservasPorVuelo(UUID vueloId) {
+        return reservaRepository.findAll().stream()
+                .filter(reserva -> vueloId.equals(reserva.getVuelo().getVueloId()))
+                .map(reservaMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public ReservaDTO cambiarEstadoAdministrativo(String reservaVueloId, String nuevoEstado, String observaciones) {
+        Reserva reserva = reservaRepository.findById(reservaVueloId)
+            .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
+            
+        String estadoAnterior = reserva.getEstado();
+        
+        // Validar transición de estado válida
+        if (!esTransicionValidaAdmin(estadoAnterior, nuevoEstado)) {
+            throw new IllegalStateException("Transición de estado no válida: " + estadoAnterior + " -> " + nuevoEstado);
+        }
+        
+        // Si se cancela una reserva confirmada o pendiente, liberar disponibilidad
+        if ("CANCELADA".equals(nuevoEstado) && 
+            ("CONFIRMADA".equals(estadoAnterior) || "PENDIENTE".equals(estadoAnterior))) {
+            liberarDisponibilidadVuelo(reserva);
+            reserva.setFechaCancelacion(LocalDateTime.now());
+        }
+        
+        reserva.setEstado(nuevoEstado);
+        reserva.setObservaciones(observaciones != null ? observaciones : "Cambio administrativo a " + nuevoEstado);
+        
+        Reserva savedReserva = reservaRepository.save(reserva);
+        return reservaMapper.toDTO(savedReserva);
+    }
+    
+    private boolean esTransicionValidaAdmin(String estadoActual, String nuevoEstado) {
+        // Transiciones válidas para administrador
+        switch (estadoActual) {
+            case "PENDIENTE":
+                return "CONFIRMADA".equals(nuevoEstado) || "CANCELADA".equals(nuevoEstado) || "EXPIRADA".equals(nuevoEstado);
+            case "CONFIRMADA":
+                return "CANCELADA".equals(nuevoEstado);
+            case "CANCELADA":
+            case "EXPIRADA":
+                return false; // Estados finales
+            default:
+                return false;
+        }
+    }
     
     // ========== MÉTODOS AUXILIARES ==========
     

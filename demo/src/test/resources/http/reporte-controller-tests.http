@@ -1,0 +1,135 @@
+### ===================================================================
+### PRUEBAS HTTP PARA REPORTE CONTROLLER - ADMINISTRATIVO
+### ===================================================================
+
+### 1. OBTENER REPORTE DE OCUPACIÓN - Todos los vuelos
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 2. OBTENER LAS 3 RUTAS MÁS POPULARES
+GET http://localhost:8080/v1/admin/reportes/rutas-populares
+
+### ===================================================================
+### CASOS DE PRUEBA ADICIONALES PARA VALIDAR CÁLCULOS
+### ===================================================================
+
+### Nota: Estos endpoints no requieren parámetros adicionales ya que:
+### - El reporte de ocupación analiza TODOS los vuelos activos (PROGRAMADO, EN_VUELO, COMPLETADO)
+### - Las rutas populares se calculan basándose en reservas CONFIRMADAS
+### - Los cálculos se realizan directamente desde los repositorios de Vuelo y Reserva
+
+### 3. VERIFICAR REPORTE DE OCUPACIÓN (debe incluir):
+### - vueloId, aerolínea, origen, destino
+### - fechaSalida, capacidadTotal, disponibilidad
+### - asientosOcupados (capacidadTotal - disponibilidad)
+### - porcentajeOcupacion (asientosOcupados / capacidadTotal * 100)
+### - reservasConfirmadas, reservasPendientes
+### - estadoVuelo
+### - Ordenado por porcentajeOcupacion descendente
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 4. VERIFICAR RUTAS POPULARES (debe incluir):
+### - origen, destino
+### - cantidadReservas (número de reservas confirmadas)
+### - totalPasajeros (suma de pasajeros en reservas confirmadas)
+### - Solo las 3 rutas más populares
+### - Ordenado por cantidadReservas descendente
+GET http://localhost:8080/v1/admin/reportes/rutas-populares
+
+### ===================================================================
+### CASOS DE VERIFICACIÓN DE LÓGICA DE NEGOCIO
+### ===================================================================
+
+### 5. REPORTE DE OCUPACIÓN - Validar que incluye vuelos PROGRAMADOS
+### Debe mostrar vuelos con estado "PROGRAMADO"
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 6. REPORTE DE OCUPACIÓN - Validar que incluye vuelos EN_VUELO
+### Debe mostrar vuelos con estado "EN_VUELO"
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 7. REPORTE DE OCUPACIÓN - Validar que incluye vuelos COMPLETADOS
+### Debe mostrar vuelos con estado "COMPLETADO"
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 8. RUTAS POPULARES - Validar que solo cuenta reservas CONFIRMADAS
+### No debe incluir reservas PENDIENTES, CANCELADAS o EXPIRADAS
+GET http://localhost:8080/v1/admin/reportes/rutas-populares
+
+### ===================================================================
+### CASOS DE VALIDACIÓN DE FORMATO DE RESPUESTA
+### ===================================================================
+
+### 9. VALIDAR ESTRUCTURA DE RESPUESTA - OCUPACIÓN
+### Debe retornar array de objetos con campos:
+### {
+###   "vueloId": "UUID",
+###   "aerolinea": "string",
+###   "origen": "string (código IATA)",
+###   "destino": "string (código IATA)",
+###   "fechaSalida": "datetime",
+###   "capacidadTotal": number,
+###   "disponibilidad": number,
+###   "asientosOcupados": number,
+###   "porcentajeOcupacion": number (0-100, 2 decimales),
+###   "reservasConfirmadas": number,
+###   "reservasPendientes": number,
+###   "estadoVuelo": "string"
+### }
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 10. VALIDAR ESTRUCTURA DE RESPUESTA - RUTAS POPULARES
+### Debe retornar array de máximo 3 objetos con campos:
+### {
+###   "origen": "string (código IATA)",
+###   "destino": "string (código IATA)",
+###   "cantidadReservas": number,
+###   "totalPasajeros": number
+### }
+GET http://localhost:8080/v1/admin/reportes/rutas-populares
+
+### ===================================================================
+### CASOS DE PRUEBA DE RENDIMIENTO Y VOLUMEN
+### ===================================================================
+
+### 11. REPORTE DE OCUPACIÓN - Con datos reales del sistema
+### Debe procesar todos los vuelos existentes sin timeout
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 12. RUTAS POPULARES - Con análisis de todas las reservas confirmadas
+### Debe analizar todas las reservas confirmadas y agrupar por ruta
+GET http://localhost:8080/v1/admin/reportes/rutas-populares
+
+### ===================================================================
+### CASOS DE VERIFICACIÓN DE CÁLCULOS ESPECÍFICOS
+### ===================================================================
+
+### 13. VERIFICAR CÁLCULO DE PORCENTAJE DE OCUPACIÓN
+### Ejemplo: Si capacidadTotal=180 y disponibilidad=30
+### Entonces asientosOcupados=150 y porcentajeOcupacion=83.33
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 14. VERIFICAR AGRUPACIÓN POR RUTA
+### Las rutas BOG-MDE y MDE-BOG deben ser diferentes
+### (origen-destino como string única)
+GET http://localhost:8080/v1/admin/reportes/rutas-populares
+
+### ===================================================================
+### CASOS DE VALIDACIÓN DE ORDENAMIENTO
+### ===================================================================
+
+### 15. VERIFICAR ORDENAMIENTO POR OCUPACIÓN DESCENDENTE
+### El primer vuelo debe tener el mayor porcentajeOcupacion
+GET http://localhost:8080/v1/admin/reportes/ocupacion
+
+### 16. VERIFICAR ORDENAMIENTO POR POPULARIDAD DESCENDENTE
+### La primera ruta debe tener la mayor cantidadReservas
+GET http://localhost:8080/v1/admin/reportes/rutas-populares
+
+### ===================================================================
+### NOTA IMPORTANTE: ENDPOINTS NO IMPLEMENTADOS SEGÚN ESPECIFICACIONES
+### ===================================================================
+### Los siguientes endpoints NO están implementados como se solicitó:
+### - /ingresos (eliminado según especificaciones)
+### - /estadisticas (eliminado según especificaciones)
+### Solo se implementaron /ocupacion y /rutas-populares
+### ===================================================================

@@ -1,0 +1,182 @@
+### ===================================================================
+### PRUEBAS HTTP PARA PASAJERO CONTROLLER - ADMINISTRATIVO
+### ===================================================================
+
+### 1. LISTAR TODOS LOS PASAJEROS
+GET http://localhost:8080/v1/admin/pasajeros
+
+### 2. LISTAR PASAJEROS CON FILTRO POR NÚMERO DE DOCUMENTO
+GET http://localhost:8080/v1/admin/pasajeros?numeroDocumento=12345678
+
+### 3. LISTAR PASAJEROS CON FILTRO POR NOMBRE
+GET http://localhost:8080/v1/admin/pasajeros?nombre=Juan
+
+### 4. LISTAR PASAJEROS CON MÚLTIPLES FILTROS
+GET http://localhost:8080/v1/admin/pasajeros?numeroDocumento=87654321&nombre=María
+
+### ===================================================================
+
+### 5. OBTENER PASAJERO ESPECÍFICO - Exitoso
+GET http://localhost:8080/v1/admin/pasajeros/CLT001JUAN
+
+### 6. OBTENER PASAJERO ESPECÍFICO - No encontrado
+GET http://localhost:8080/v1/admin/pasajeros/00000000-0000-0000-0000-000000000000
+
+### ===================================================================
+
+### 7. CREAR PASAJERO - Exitoso
+POST http://localhost:8080/v1/admin/pasajeros
+Content-Type: application/json
+
+{
+  "clientId": "CLT003CARLOS",
+  "nombre": "Carlos Rodríguez",
+  "email": "carlos.rodriguez@email.com",
+  "numeroDocumento": "11223344"
+}
+
+### 8. CREAR PASAJERO - Error documento duplicado
+POST http://localhost:8080/v1/admin/pasajeros
+Content-Type: application/json
+
+{
+  "clientId": "CLT004TEST",
+  "nombre": "Test Usuario",
+  "email": "test@email.com",
+  "numeroDocumento": "12345678"
+}
+
+### 9. CREAR PASAJERO - Error validación clientId vacío
+POST http://localhost:8080/v1/admin/pasajeros
+Content-Type: application/json
+
+{
+  "clientId": "",
+  "nombre": "Test Usuario",
+  "email": "test@email.com",
+  "numeroDocumento": "99999999"
+}
+
+### 10. CREAR PASAJERO - Campos mínimos
+POST http://localhost:8080/v1/admin/pasajeros
+Content-Type: application/json
+
+{
+  "clientId": "CLT005MIN",
+  "nombre": "Usuario Mínimo",
+  "numeroDocumento": "55555555"
+}
+
+### ===================================================================
+
+### 11. ACTUALIZAR PASAJERO - Exitoso
+PUT http://localhost:8080/v1/admin/pasajeros/CLT003CARLOS
+Content-Type: application/json
+
+{
+  "clientId": "CLT003CARLOS",
+  "nombre": "Carlos Rodríguez Actualizado",
+  "email": "carlos.nuevo@email.com",
+  "numeroDocumento": "11223344"
+}
+
+### 12. ACTUALIZAR PASAJERO - Cambiar email
+PUT http://localhost:8080/v1/admin/pasajeros/CLT001JUAN
+Content-Type: application/json
+
+{
+  "clientId": "CLT001JUAN",
+  "nombre": "Juan Pérez",
+  "email": "juan.perez.nuevo@email.com",
+  "numeroDocumento": "12345678"
+}
+
+### 13. ACTUALIZAR PASAJERO - Pasajero inexistente
+PUT http://localhost:8080/v1/admin/pasajeros/00000000-0000-0000-0000-000000000000
+Content-Type: application/json
+
+{
+  "clientId": "INEXISTENTE",
+  "nombre": "Test",
+  "numeroDocumento": "00000000"
+}
+
+### ===================================================================
+
+### 14. ELIMINAR PASAJERO - Sin reservas activas
+DELETE http://localhost:8080/v1/admin/pasajeros/CLT003CARLOS
+
+### 15. ELIMINAR PASAJERO - Con reservas activas (debe fallar)
+DELETE http://localhost:8080/v1/admin/pasajeros/CLT001JUAN
+
+### 16. ELIMINAR PASAJERO - Pasajero inexistente
+DELETE http://localhost:8080/v1/admin/pasajeros/00000000-0000-0000-0000-000000000000
+
+### ===================================================================
+
+### 17. BUSCAR PASAJERO POR DOCUMENTO - Exitoso
+GET http://localhost:8080/v1/admin/pasajeros/buscar-por-documento?tipoDocumento=CC&numeroDocumento=12345678
+
+### 18. BUSCAR PASAJERO POR DOCUMENTO - Solo número (tipo ignorado por entidad)
+GET http://localhost:8080/v1/admin/pasajeros/buscar-por-documento?tipoDocumento=CE&numeroDocumento=87654321
+
+### 19. BUSCAR PASAJERO POR DOCUMENTO - No encontrado
+GET http://localhost:8080/v1/admin/pasajeros/buscar-por-documento?tipoDocumento=CC&numeroDocumento=00000000
+
+### 20. BUSCAR PASAJERO POR DOCUMENTO - Documento inválido
+GET http://localhost:8080/v1/admin/pasajeros/buscar-por-documento?tipoDocumento=CC&numeroDocumento=
+
+### ===================================================================
+### CASOS DE PRUEBA ADICIONALES
+### ===================================================================
+
+### 21. CREAR PASAJERO CON EMAIL LARGO
+POST http://localhost:8080/v1/admin/pasajeros
+Content-Type: application/json
+
+{
+  "clientId": "CLT006EMAIL",
+  "nombre": "Usuario Email Largo",
+  "email": "usuario.con.email.muy.largo.para.pruebas@dominio.empresarial.com",
+  "numeroDocumento": "66666666"
+}
+
+### 22. FILTRO POR NOMBRE PARCIAL (CASE INSENSITIVE)
+GET http://localhost:8080/v1/admin/pasajeros?nombre=maría
+
+### 23. FILTRO POR NOMBRE COMPLETO
+GET http://localhost:8080/v1/admin/pasajeros?nombre=Juan Pérez
+
+### 24. CREAR PASAJERO CON NOMBRE COMPLETO LARGO
+POST http://localhost:8080/v1/admin/pasajeros
+Content-Type: application/json
+
+{
+  "clientId": "CLT007LARGO",
+  "nombre": "Ana María González Rodríguez de la Cruz",
+  "email": "ana.maria@email.com",
+  "numeroDocumento": "77777777"
+}
+
+### 25. BUSCAR PASAJEROS SIN FILTROS (TODOS)
+GET http://localhost:8080/v1/admin/pasajeros
+
+### ===================================================================
+### CASOS EDGE PARA UUID COMO PASAJERO ID
+### ===================================================================
+
+### 26. OBTENER PASAJERO CON UUID VÁLIDO PERO INEXISTENTE
+GET http://localhost:8080/v1/admin/pasajeros/f47ac10b-58cc-4372-a567-0e02b2c3d999
+
+### 27. ACTUALIZAR PASAJERO CON UUID VÁLIDO
+PUT http://localhost:8080/v1/admin/pasajeros/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Content-Type: application/json
+
+{
+  "clientId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "nombre": "Usuario UUID",
+  "email": "uuid@email.com",
+  "numeroDocumento": "88888888"
+}
+
+### ===================================================================

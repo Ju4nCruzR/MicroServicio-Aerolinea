@@ -1,10 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Vuelo;
+import com.example.demo.entity.Reserva;
 import com.example.demo.dto.VueloDTO;
 import com.example.demo.mapper.VueloMapper;
 import com.example.demo.repository.VueloRepository;
 import com.example.demo.repository.AeropuertoRepository;
+import com.example.demo.repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +26,26 @@ public class VueloService {
     private AeropuertoRepository aeropuertoRepository;
 
     @Autowired
+    private ReservaRepository reservaRepository;
+
+    @Autowired
     private VueloMapper vueloMapper;
 
     public VueloDTO crearVuelo(Vuelo vuelo) {
+        // VALIDACIONES OBLIGATORIAS: ORIGEN Y DESTINO
+        if (vuelo.getOrigen() == null || vuelo.getOrigen().getCodigoIATA() == null || vuelo.getOrigen().getCodigoIATA().trim().isEmpty()) {
+            throw new IllegalArgumentException("El aeropuerto de origen es obligatorio");
+        }
+        
+        if (vuelo.getDestino() == null || vuelo.getDestino().getCodigoIATA() == null || vuelo.getDestino().getCodigoIATA().trim().isEmpty()) {
+            throw new IllegalArgumentException("El aeropuerto de destino es obligatorio");
+        }
+        
+        // Validar que origen y destino sean diferentes
+        if (vuelo.getOrigen().getCodigoIATA().equals(vuelo.getDestino().getCodigoIATA())) {
+            throw new IllegalArgumentException("El aeropuerto de origen y destino no pueden ser el mismo");
+        }
+
         // Generar UUID v4 si no se proporciona
         if (vuelo.getVueloId() == null) {
             vuelo.setVueloId(UUID.randomUUID());
@@ -75,6 +94,28 @@ public class VueloService {
     }
 
     public VueloDTO actualizarVuelo(Vuelo vuelo) {
+        // VALIDACIONES OBLIGATORIAS: ORIGEN Y DESTINO
+        if (vuelo.getOrigen() == null || vuelo.getOrigen().getCodigoIATA() == null || vuelo.getOrigen().getCodigoIATA().trim().isEmpty()) {
+            throw new IllegalArgumentException("El aeropuerto de origen es obligatorio");
+        }
+        
+        if (vuelo.getDestino() == null || vuelo.getDestino().getCodigoIATA() == null || vuelo.getDestino().getCodigoIATA().trim().isEmpty()) {
+            throw new IllegalArgumentException("El aeropuerto de destino es obligatorio");
+        }
+        
+        // Validar que origen y destino sean diferentes
+        if (vuelo.getOrigen().getCodigoIATA().equals(vuelo.getDestino().getCodigoIATA())) {
+            throw new IllegalArgumentException("El aeropuerto de origen y destino no pueden ser el mismo");
+        }
+        
+        // Validar que los aeropuertos existen
+        if (!aeropuertoRepository.existsById(vuelo.getOrigen().getCodigoIATA())) {
+            throw new IllegalArgumentException("El aeropuerto de origen no existe: " + vuelo.getOrigen().getCodigoIATA());
+        }
+        if (!aeropuertoRepository.existsById(vuelo.getDestino().getCodigoIATA())) {
+            throw new IllegalArgumentException("El aeropuerto de destino no existe: " + vuelo.getDestino().getCodigoIATA());
+        }
+
         // Validar fechas coherentes
         if (vuelo.getFechaSalida() != null && vuelo.getFechaLlegada() != null &&
                 vuelo.getFechaSalida().isAfter(vuelo.getFechaLlegada())) {
@@ -86,24 +127,7 @@ public class VueloService {
         return vueloMapper.toDTO(savedVuelo);
     }
 
-    public void eliminarVuelo(UUID idVuelo) {
-        Vuelo vuelo = vueloRepository.findById(idVuelo)
-            .orElseThrow(() -> new IllegalArgumentException("Vuelo no encontrado"));
-        
-        // REGLA DE NEGOCIO: No eliminar vuelos con reservas activas
-        if (vuelo.getDisponibilidad() < vuelo.getCapacidadTotal()) {
-            throw new IllegalStateException("No se puede eliminar un vuelo con reservas activas");
-        }
-        
-        // REGLA DE NEGOCIO: No eliminar vuelos en estado EN_VUELO
-        if ("EN_VUELO".equals(vuelo.getEstado())) {
-            throw new IllegalStateException("No se puede eliminar un vuelo en estado EN_VUELO");
-        }
-        
-        // En lugar de eliminar físicamente, cambiar estado a CANCELADO
-        vuelo.setEstado("CANCELADO");
-        vueloRepository.save(vuelo);
-    }
+
 
     public List<VueloDTO> listarVuelos() {
         return vueloRepository.findAll().stream()
@@ -176,6 +200,119 @@ public class VueloService {
     public List<VueloDTO> buscarVuelos(String origin, String destination, Integer numPasajeros, 
                                        LocalDate departureDate, LocalDate returnDate) {
         return buscarVuelos(origin, destination, numPasajeros, departureDate, returnDate, null);
+    }
+
+    // ========== MÉTODOS ADMINISTRATIVOS ==========
+    
+    public List<VueloDTO> listarVuelosAdmin(String origen, String destino, String estado, String aerolinea) {
+        return vueloRepository.findAll().stream()
+                .filter(vuelo -> {
+                    boolean coincideOrigen = origen == null || (vuelo.getOrigen() != null && vuelo.getOrigen().getCodigoIATA().equals(origen));
+                    boolean coincideDestino = destino == null || (vuelo.getDestino() != null && vuelo.getDestino().getCodigoIATA().equals(destino));
+                    boolean coincideEstado = estado == null || estado.equals(vuelo.getEstado());
+                    boolean coincideAerolinea = aerolinea == null || aerolinea.equals(vuelo.getAerolinea());
+                    
+                    return coincideOrigen && coincideDestino && coincideEstado && coincideAerolinea;
+                })
+                .map(vueloMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public boolean eliminarVuelo(UUID vueloId) {
+        Vuelo vuelo = vueloRepository.findById(vueloId).orElse(null);
+        if (vuelo == null) {
+            return false;
+        }
+        
+        // Verificar si tiene reservas confirmadas
+        boolean tieneReservasConfirmadas = vuelo.getReservas() != null && 
+            vuelo.getReservas().stream().anyMatch(reserva -> "CONFIRMADA".equals(reserva.getEstado()));
+        
+        if (tieneReservasConfirmadas) {
+            return false; // No se puede eliminar
+        }
+        
+        // Cambiar estado a CANCELADO en lugar de eliminar
+        vuelo.setEstado("CANCELADO");
+        vueloRepository.save(vuelo);
+        return true;
+    }
+    
+    public VueloDTO ajustarDisponibilidad(UUID vueloId, Integer nuevaDisponibilidad, String motivo) {
+        Vuelo vuelo = vueloRepository.findById(vueloId)
+            .orElseThrow(() -> new IllegalArgumentException("Vuelo no encontrado"));
+            
+        if (nuevaDisponibilidad < 0) {
+            throw new IllegalArgumentException("La disponibilidad no puede ser negativa");
+        }
+        
+        if (nuevaDisponibilidad > vuelo.getCapacidadTotal()) {
+            throw new IllegalArgumentException("La disponibilidad no puede superar la capacidad total");
+        }
+        
+        vuelo.setDisponibilidad(nuevaDisponibilidad);
+        Vuelo savedVuelo = vueloRepository.save(vuelo);
+        return vueloMapper.toDTO(savedVuelo);
+    }
+    
+    public com.example.demo.dto.ResumenReservasVueloDTO obtenerResumenReservas(UUID vueloId) {
+        Vuelo vuelo = vueloRepository.findById(vueloId).orElse(null);
+        if (vuelo == null) {
+            return null;
+        }
+        
+        com.example.demo.dto.ResumenReservasVueloDTO resumen = new com.example.demo.dto.ResumenReservasVueloDTO();
+        resumen.setVueloId(vueloId);
+        
+        // Obtener reservas usando repository para evitar lazy loading
+        List<com.example.demo.entity.Reserva> reservasVuelo = reservaRepository.findAll().stream()
+            .filter(r -> r.getVuelo() != null && vueloId.equals(r.getVuelo().getVueloId()))
+            .collect(java.util.stream.Collectors.toList());
+            
+        resumen.setTotalReservas(reservasVuelo.size());
+        resumen.setReservasConfirmadas((int) reservasVuelo.stream().filter(r -> "CONFIRMADA".equals(r.getEstado())).count());
+        resumen.setReservasPendientes((int) reservasVuelo.stream().filter(r -> "PENDIENTE".equals(r.getEstado())).count());
+        resumen.setReservasCanceladas((int) reservasVuelo.stream().filter(r -> "CANCELADA".equals(r.getEstado())).count());
+            
+        resumen.setPasajerosConfirmados(reservasVuelo.stream()
+            .filter(r -> "CONFIRMADA".equals(r.getEstado()))
+            .mapToInt(r -> r.getNumPasajeros())
+            .sum());
+                
+        resumen.setIngresosTotales(reservasVuelo.stream()
+            .filter(r -> "CONFIRMADA".equals(r.getEstado()))
+            .mapToDouble(r -> r.getPrecioTotal())
+            .sum());
+        
+        return resumen;
+    }
+    
+    public VueloDTO cambiarEstadoVuelo(UUID vueloId, String nuevoEstado, String observaciones) {
+        Vuelo vuelo = vueloRepository.findById(vueloId)
+            .orElseThrow(() -> new IllegalArgumentException("Vuelo no encontrado"));
+            
+        // Validar transición de estado
+        if (!esTransicionValidaVuelo(vuelo.getEstado(), nuevoEstado)) {
+            throw new IllegalStateException("Transición de estado no válida: " + vuelo.getEstado() + " -> " + nuevoEstado);
+        }
+        
+        vuelo.setEstado(nuevoEstado);
+        Vuelo savedVuelo = vueloRepository.save(vuelo);
+        return vueloMapper.toDTO(savedVuelo);
+    }
+    
+    private boolean esTransicionValidaVuelo(String estadoActual, String nuevoEstado) {
+        switch (estadoActual) {
+            case "PROGRAMADO":
+                return "EN_VUELO".equals(nuevoEstado) || "CANCELADO".equals(nuevoEstado);
+            case "EN_VUELO":
+                return "COMPLETADO".equals(nuevoEstado) || "CANCELADO".equals(nuevoEstado);
+            case "COMPLETADO":
+            case "CANCELADO":
+                return false; // Estados finales
+            default:
+                return false;
+        }
     }
 
 }

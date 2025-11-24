@@ -1,0 +1,279 @@
+### ===================================================================
+### PRUEBAS HTTP PARA VUELO ADMIN CONTROLLER - ADMINISTRATIVO
+### ===================================================================
+
+### 1. LISTAR TODOS LOS VUELOS
+GET http://localhost:8080/v1/admin/vuelos
+
+### 2. LISTAR VUELOS CON FILTRO POR ORIGEN
+GET http://localhost:8080/v1/admin/vuelos?origen=BOG
+
+### 3. LISTAR VUELOS CON FILTRO POR DESTINO
+GET http://localhost:8080/v1/admin/vuelos?destino=MDE
+
+### 4. LISTAR VUELOS CON FILTRO POR ESTADO
+GET http://localhost:8080/v1/admin/vuelos?estado=PROGRAMADO
+
+### 5. LISTAR VUELOS CON FILTRO POR AEROLÍNEA
+GET http://localhost:8080/v1/admin/vuelos?aerolinea=Avianca
+
+### 6. LISTAR VUELOS CON MÚLTIPLES FILTROS
+GET http://localhost:8080/v1/admin/vuelos?origen=BOG&destino=MDE&estado=PROGRAMADO&aerolinea=Avianca
+
+### ===================================================================
+
+### 7. OBTENER VUELO DETALLADO - Exitoso
+GET http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+
+### 8. OBTENER VUELO DETALLADO - No encontrado
+GET http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-000000000000
+
+### ===================================================================
+
+### 9. ACTUALIZAR VUELO - Exitoso
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-01T08:00:00",
+  "fechaLlegada": "2025-12-01T10:30:00",
+  "duracion": "2h30m",
+  "precio": 380000.0,
+  "moneda": "COP",
+  "clase": "ECONOMICA",
+  "disponibilidad": 150,
+  "capacidadTotal": 180,
+  "estado": "PROGRAMADO",
+  "origen": {
+    "codigoIATA": "BOG"
+  },
+  "destino": {
+    "codigoIATA": "MDE"
+  }
+}
+
+### 10. ACTUALIZAR VUELO - Fechas inválidas
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "fechaSalida": "2025-12-01T10:00:00",
+  "fechaLlegada": "2025-12-01T08:00:00"
+}
+
+### 10a. ACTUALIZAR VUELO - Error origen obligatorio (sin aeropuerto)
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-01T08:00:00",
+  "fechaLlegada": "2025-12-01T10:30:00",
+  "origen": null,
+  "destino": {
+    "codigoIATA": "MDE"
+  }
+}
+
+### 10b. ACTUALIZAR VUELO - Error destino obligatorio (sin aeropuerto)
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-01T08:00:00",
+  "fechaLlegada": "2025-12-01T10:30:00",
+  "origen": {
+    "codigoIATA": "BOG"
+  },
+  "destino": null
+}
+
+### 10c. ACTUALIZAR VUELO - Error origen y destino iguales
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-01T08:00:00",
+  "fechaLlegada": "2025-12-01T10:30:00",
+  "origen": {
+    "codigoIATA": "BOG"
+  },
+  "destino": {
+    "codigoIATA": "BOG"
+  }
+}
+
+### 10d. ACTUALIZAR VUELO - Error aeropuerto origen inexistente
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-01T08:00:00",
+  "fechaLlegada": "2025-12-01T10:30:00",
+  "origen": {
+    "codigoIATA": "XXX"
+  },
+  "destino": {
+    "codigoIATA": "MDE"
+  }
+}
+
+### 10e. ACTUALIZAR VUELO - Error aeropuerto destino inexistente
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-01T08:00:00",
+  "fechaLlegada": "2025-12-01T10:30:00",
+  "origen": {
+    "codigoIATA": "BOG"
+  },
+  "destino": {
+    "codigoIATA": "YYY"
+  }
+}
+
+### 11. ACTUALIZAR VUELO - Vuelo inexistente
+PUT http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-000000000000
+Content-Type: application/json
+
+{
+  "aerolinea": "Test Airline"
+}
+
+### ===================================================================
+
+### 12. ELIMINAR VUELO - Sin reservas confirmadas
+DELETE http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d481
+
+### 13. ELIMINAR VUELO - Con reservas confirmadas (debe fallar)
+DELETE http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+
+### 14. ELIMINAR VUELO - Vuelo inexistente
+DELETE http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-000000000000
+
+### ===================================================================
+
+### 15. AJUSTAR DISPONIBILIDAD - Reducir disponibilidad
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/disponibilidad
+Content-Type: application/json
+
+{
+  "nuevaDisponibilidad": 120,
+  "motivo": "Mantenimiento preventivo - reducción de asientos"
+}
+
+### 16. AJUSTAR DISPONIBILIDAD - Aumentar disponibilidad
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/disponibilidad
+Content-Type: application/json
+
+{
+  "nuevaDisponibilidad": 170,
+  "motivo": "Cambio de aeronave - mayor capacidad"
+}
+
+### 17. AJUSTAR DISPONIBILIDAD - Disponibilidad inválida (negativa)
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/disponibilidad
+Content-Type: application/json
+
+{
+  "nuevaDisponibilidad": -10,
+  "motivo": "Test error"
+}
+
+### 18. AJUSTAR DISPONIBILIDAD - Excede capacidad total
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/disponibilidad
+Content-Type: application/json
+
+{
+  "nuevaDisponibilidad": 300,
+  "motivo": "Test error"
+}
+
+### ===================================================================
+
+### 19. OBTENER RESUMEN DE RESERVAS DEL VUELO
+GET http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/reservas
+
+### 20. OBTENER RESUMEN DE RESERVAS - Vuelo inexistente
+GET http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-000000000000/reservas
+
+### ===================================================================
+
+### 21. CAMBIAR ESTADO DEL VUELO - De PROGRAMADO a EN_VUELO
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "EN_VUELO",
+  "observaciones": "Vuelo despegó según horario programado"
+}
+
+### 22. CAMBIAR ESTADO DEL VUELO - De EN_VUELO a COMPLETADO
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "COMPLETADO",
+  "observaciones": "Vuelo aterrizó exitosamente en destino"
+}
+
+### 23. CAMBIAR ESTADO DEL VUELO - De PROGRAMADO a CANCELADO
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "CANCELADO",
+  "observaciones": "Cancelado por condiciones meteorológicas adversas"
+}
+
+### 24. CAMBIAR ESTADO DEL VUELO - Transición inválida
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "PROGRAMADO",
+  "observaciones": "Intento de revertir estado completado"
+}
+
+### 25. CAMBIAR ESTADO DEL VUELO - Vuelo inexistente
+PUT http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-000000000000/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "CANCELADO",
+  "observaciones": "Test"
+}
+
+### ===================================================================
+### CASOS DE PRUEBA ADICIONALES
+### ===================================================================
+
+### 26. FILTROS COMBINADOS COMPLEJOS
+GET http://localhost:8080/v1/admin/vuelos?origen=BOG&estado=PROGRAMADO
+
+### 27. FILTRO POR AEROLÍNEA ESPECÍFICA
+GET http://localhost:8080/v1/admin/vuelos?aerolinea=LATAM
+
+### 28. AJUSTAR DISPONIBILIDAD A CERO (VUELO LLENO)
+PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/disponibilidad
+Content-Type: application/json
+
+{
+  "nuevaDisponibilidad": 0,
+  "motivo": "Vuelo completamente reservado"
+}
+
+### ===================================================================

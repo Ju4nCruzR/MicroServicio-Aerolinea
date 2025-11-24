@@ -1,0 +1,372 @@
+### ===================================================================
+### PRUEBAS HTTP COMPLETAS - MICROSERVICIO AEROLÍNEA
+### TODOS LOS CONTROLADORES - SOLO HTTP
+### ===================================================================
+
+### CONTROLADORES IMPLEMENTADOS:
+### 1. VueloController - Público para ecosistema turismo
+### 2. AeropuertoController - Administrativo CRUD
+### 3. ReservaAdminController - Administrativo con filtro documentoCliente
+### 4. VueloAdminController - Administrativo avanzado
+### 5. PasajeroController - Administrativo CRUD
+### 6. ReporteController - Solo ocupación y rutas populares
+
+### ===================================================================
+### VALIDACIONES IMPLEMENTADAS PARA VUELOS:
+### - ORIGEN Y DESTINO SON OBLIGATORIOS (NO PUEDEN SER NULL)
+### - ORIGEN Y DESTINO NO PUEDEN SER IGUALES
+### - ORIGEN Y DESTINO DEBEN EXISTIR EN LA BASE DE DATOS
+### - CÓDIGOS IATA NO PUEDEN ESTAR VACÍOS
+### ===================================================================
+
+### ===================================================================
+### VARIABLES DE ENTORNO PARA PRUEBAS
+### ===================================================================
+@baseUrl = http://localhost:8080
+@validVueloId = f47ac10b-58cc-4372-a567-0e02b2c3d479
+@validReservaId = RSV1764017763727203
+@validDocumentoCliente = 12345678
+@validClientDocument = 12345678
+@validAeropuertoOrigen = BOG
+@validAeropuertoDestino = MDE
+
+### ===================================================================
+### 1. VUELO CONTROLLER - PÚBLICO (ECOSISTEMA TURISMO)
+### ===================================================================
+
+### Buscar vuelos disponibles
+POST {{baseUrl}}/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "{{validAeropuertoOrigen}}",
+  "destino": "{{validAeropuertoDestino}}",
+  "fechaSalida": "2025-12-01",
+  "numPasajeros": 2,
+  "clase": "ECONOMICA"
+}
+
+### Crear pre-reserva
+POST {{baseUrl}}/v1/vuelos/reservar
+Content-Type: application/json
+
+{
+  "vueloId": "{{validVueloId}}",
+  "numPasajeros": 1,
+  "contactoReserva": "Dick Grayson",
+  "documentoContacto": "{{validClientDocument}}"
+}
+
+### Confirmar reserva con banco
+PUT {{baseUrl}}/v1/vuelos/reservas/{{validReservaId}}/confirmar
+Content-Type: application/json
+
+{
+  "transaccionBancariaId": "TXB123456789",
+  "metodoPago": "TARJETA_CREDITO"
+}
+
+### Cancelar reserva
+DELETE {{baseUrl}}/v1/vuelos/reservas/{{validReservaId}}
+
+### Obtener vuelo específico (Admin)
+GET {{baseUrl}}/v1/vuelos/{{validVueloId}}
+
+### Crear vuelo (Admin) - CON ORIGEN Y DESTINO OBLIGATORIOS
+POST {{baseUrl}}/v1/vuelos
+Content-Type: application/json
+
+{
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-15T10:00:00",
+  "fechaLlegada": "2025-12-15T12:30:00",
+  "duracion": "2h30m",
+  "precio": 350000.0,
+  "moneda": "COP",
+  "clase": "ECONOMICA",
+  "disponibilidad": 180,
+  "capacidadTotal": 180,
+  "estado": "PROGRAMADO",
+  "origen": {
+    "codigoIATA": "{{validAeropuertoOrigen}}"
+  },
+  "destino": {
+    "codigoIATA": "{{validAeropuertoDestino}}"
+  }
+}
+
+### Error - Crear vuelo sin origen (debe fallar)
+POST {{baseUrl}}/v1/vuelos
+Content-Type: application/json
+
+{
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-15T10:00:00",
+  "fechaLlegada": "2025-12-15T12:30:00",
+  "duracion": "2h30m",
+  "precio": 350000.0,
+  "moneda": "COP",
+  "clase": "ECONOMICA",
+  "disponibilidad": 180,
+  "estado": "PROGRAMADO",
+  "origen": null,
+  "destino": {
+    "codigoIATA": "{{validAeropuertoDestino}}"
+  }
+}
+
+### Error - Crear vuelo con origen y destino iguales (debe fallar)
+POST {{baseUrl}}/v1/vuelos
+Content-Type: application/json
+
+{
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-15T10:00:00",
+  "fechaLlegada": "2025-12-15T12:30:00",
+  "duracion": "2h30m",
+  "precio": 350000.0,
+  "moneda": "COP",
+  "clase": "ECONOMICA",
+  "disponibilidad": 180,
+  "estado": "PROGRAMADO",
+  "origen": {
+    "codigoIATA": "BOG"
+  },
+  "destino": {
+    "codigoIATA": "BOG"
+  }
+}
+
+### ===================================================================
+### 2. AEROPUERTO CONTROLLER - ADMINISTRATIVO
+### ===================================================================
+
+### Listar todos los aeropuertos
+GET {{baseUrl}}/v1/admin/aeropuertos
+
+### Obtener aeropuerto específico
+GET {{baseUrl}}/v1/admin/aeropuertos/{{validAeropuertoOrigen}}
+
+### Crear aeropuerto
+POST {{baseUrl}}/v1/admin/aeropuertos
+Content-Type: application/json
+
+{
+  "codigoIATA": "CLO",
+  "nombre": "Aeropuerto Alfonso Bonilla Aragón",
+  "ciudad": "Cali",
+  "pais": "Colombia",
+  "codigoICAO": "SKCL"
+}
+
+### Actualizar aeropuerto
+PUT {{baseUrl}}/v1/admin/aeropuertos/CLO
+Content-Type: application/json
+
+{
+  "codigoIATA": "CLO",
+  "nombre": "Aeropuerto Alfonso Bonilla Aragón Internacional",
+  "ciudad": "Cali",
+  "pais": "Colombia",
+  "codigoICAO": "SKCL"
+}
+
+### Eliminar aeropuerto
+DELETE {{baseUrl}}/v1/admin/aeropuertos/CLO
+
+### ===================================================================
+### 3. RESERVA ADMIN CONTROLLER - CON FILTRO DOCUMENTO CLIENTE
+### ===================================================================
+
+### Listar todas las reservas
+GET {{baseUrl}}/v1/admin/reservas
+
+### Filtrar reservas por CLIENTE ID (ESPECIAL)
+GET {{baseUrl}}/v1/admin/reservas?documentoCliente={{validDocumentoCliente}}
+
+### Filtrar reservas por estado
+GET {{baseUrl}}/v1/admin/reservas?estado=PENDIENTE
+
+### Filtrar reservas por vuelo
+GET {{baseUrl}}/v1/admin/reservas?vueloId={{validVueloId}}
+
+### Obtener reserva específica
+GET {{baseUrl}}/v1/admin/reservas/{{validReservaId}}
+
+### Obtener reservas por vuelo
+GET {{baseUrl}}/v1/admin/reservas/vuelo/{{validVueloId}}
+
+### Cambiar estado de reserva
+PUT {{baseUrl}}/v1/admin/reservas/{{validReservaId}}/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "CONFIRMADA",
+  "observaciones": "Confirmación administrativa manual"
+}
+
+### Cancelar reserva administrativamente
+DELETE {{baseUrl}}/v1/admin/reservas/{{validReservaId}}?motivo=Cancelación administrativa
+
+### ===================================================================
+### 4. VUELO ADMIN CONTROLLER - GESTIÓN AVANZADA
+### ===================================================================
+
+### Listar todos los vuelos
+GET {{baseUrl}}/v1/admin/vuelos
+
+### Filtrar vuelos por origen
+GET {{baseUrl}}/v1/admin/vuelos?origen={{validAeropuertoOrigen}}
+
+### Filtrar vuelos por múltiples criterios
+GET {{baseUrl}}/v1/admin/vuelos?origen={{validAeropuertoOrigen}}&estado=PROGRAMADO&aerolinea=Avianca
+
+### Obtener vuelo detallado
+GET {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}
+
+### Actualizar vuelo - CON ORIGEN Y DESTINO OBLIGATORIOS
+PUT {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}
+Content-Type: application/json
+
+{
+  "vueloId": "{{validVueloId}}",
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-01T08:00:00",
+  "fechaLlegada": "2025-12-01T10:30:00",
+  "precio": 380000.0,
+  "disponibilidad": 150,
+  "estado": "PROGRAMADO",
+  "origen": {
+    "codigoIATA": "{{validAeropuertoOrigen}}"
+  },
+  "destino": {
+    "codigoIATA": "{{validAeropuertoDestino}}"
+  }
+}
+
+### Error - Actualizar vuelo sin destino (debe fallar)
+PUT {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}
+Content-Type: application/json
+
+{
+  "vueloId": "{{validVueloId}}",
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-01T08:00:00",
+  "fechaLlegada": "2025-12-01T10:30:00",
+  "precio": 380000.0,
+  "disponibilidad": 150,
+  "estado": "PROGRAMADO",
+  "origen": {
+    "codigoIATA": "{{validAeropuertoOrigen}}"
+  },
+  "destino": null
+}
+
+### Eliminar vuelo
+DELETE {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}
+
+### Ajustar disponibilidad
+PUT {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}/disponibilidad
+Content-Type: application/json
+
+{
+  "nuevaDisponibilidad": 120,
+  "motivo": "Mantenimiento preventivo"
+}
+
+### Obtener resumen de reservas del vuelo
+GET {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}/reservas
+
+### Cambiar estado del vuelo
+PUT {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}/estado
+Content-Type: application/json
+
+{
+  "nuevoEstado": "EN_VUELO",
+  "observaciones": "Vuelo despegó según horario"
+}
+
+### ===================================================================
+### 5. PASAJERO CONTROLLER - CRUD COMPLETO
+### ===================================================================
+
+### Listar todos los pasajeros
+GET {{baseUrl}}/v1/admin/pasajeros
+
+### Filtrar pasajeros por documento
+GET {{baseUrl}}/v1/admin/pasajeros?numeroDocumento={{validClientDocument}}
+
+### Filtrar pasajeros por nombre
+GET {{baseUrl}}/v1/admin/pasajeros?nombre=Juan
+
+### Obtener pasajero específico
+GET {{baseUrl}}/v1/admin/pasajeros/{{validDocumentoCliente}}
+
+### Crear pasajero
+POST {{baseUrl}}/v1/admin/pasajeros
+Content-Type: application/json
+
+{
+  "clientId": "CLT003CARLOS",
+  "nombre": "Carlos Rodríguez",
+  "email": "carlos.rodriguez@email.com",
+  "numeroDocumento": "11223344"
+}
+
+### Actualizar pasajero
+PUT {{baseUrl}}/v1/admin/pasajeros/CLT003CARLOS
+Content-Type: application/json
+
+{
+  "clientId": "CLT003CARLOS",
+  "nombre": "Carlos Rodríguez Actualizado",
+  "email": "carlos.nuevo@email.com",
+  "numeroDocumento": "11223344"
+}
+
+### Eliminar pasajero
+DELETE {{baseUrl}}/v1/admin/pasajeros/CLT003CARLOS
+
+### Buscar pasajero por documento
+GET {{baseUrl}}/v1/admin/pasajeros/buscar-por-documento?tipoDocumento=CC&numeroDocumento={{validClientDocument}}
+
+### ===================================================================
+### 6. REPORTE CONTROLLER - OCUPACIÓN Y RUTAS POPULARES
+### ===================================================================
+
+### Obtener reporte de ocupación (calculado desde repositorios)
+GET {{baseUrl}}/v1/admin/reportes/ocupacion
+
+### Obtener las 3 rutas más populares (calculado desde repositorios)
+GET {{baseUrl}}/v1/admin/reportes/rutas-populares
+
+### ===================================================================
+### CASOS DE PRUEBA DE ERRORES COMUNES
+### ===================================================================
+
+### Error 404 - Recurso no encontrado
+GET {{baseUrl}}/v1/vuelos/00000000-0000-0000-0000-000000000000
+
+### Error 400 - Datos inválidos
+POST {{baseUrl}}/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "INVALID",
+  "destino": "",
+  "numPasajeros": 0
+}
+
+### Error 409 - Estado conflictivo
+DELETE {{baseUrl}}/v1/admin/aeropuertos/{{validAeropuertoOrigen}}
+
+### ===================================================================
+### NOTAS DE IMPLEMENTACIÓN
+### ===================================================================
+### ✅ Filtro especial por documentoCliente en ReservaAdminController
+### ✅ ReporteService calcula desde repositorios (sin endpoints de ingresos/estadísticas)
+### ✅ UUID v4 en todos los identificadores
+### ✅ Lógica simplificada sin asientos individuales
+### ✅ Mantiene flujo de confirmación bancaria (PENDIENTE → CONFIRMADA)
+### ✅ 6 controladores con 38 archivos compilados exitosamente
+### ===================================================================

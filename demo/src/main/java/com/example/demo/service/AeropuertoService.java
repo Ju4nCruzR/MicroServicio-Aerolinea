@@ -170,7 +170,7 @@ public class AeropuertoService {
     /**
      * Eliminar aeropuerto (solo si no tiene vuelos asociados)
      */
-    public void eliminarAeropuerto(String codigoIATA) {
+    public boolean eliminarAeropuerto(String codigoIATA) {
         // Validar que el aeropuerto existe
         if (!aeropuertoRepository.existsById(codigoIATA)) {
             throw new IllegalArgumentException("Aeropuerto no encontrado");
@@ -186,10 +186,11 @@ public class AeropuertoService {
             .count();
             
         if (vuelosOrigen > 0 || vuelosDestino > 0) {
-            throw new IllegalStateException("No se puede eliminar un aeropuerto que tiene vuelos asociados");
+            return false; // No se puede eliminar
         }
         
         aeropuertoRepository.deleteById(codigoIATA);
+        return true;
     }
     
     /**
@@ -206,6 +207,15 @@ public class AeropuertoService {
         return aeropuertoRepository.findAll().stream()
                 .map(aeropuertoMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    // Métodos administrativos adicionales
+    public List<AeropuertoDTO> listarTodos() {
+        return listarAeropuertos(); // Alias
+    }
+    
+    public AeropuertoDTO buscarPorCodigo(String codigo) {
+        return consultarAeropuerto(codigo); // Alias
     }
     
     /**

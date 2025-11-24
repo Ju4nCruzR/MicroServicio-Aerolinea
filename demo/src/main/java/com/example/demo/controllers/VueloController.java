@@ -15,7 +15,6 @@ import java.util.UUID;
 import com.example.demo.service.VueloService;
 import com.example.demo.service.ReservaService;
 import com.example.demo.dto.*;
-import com.example.demo.entity.Vuelo;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -211,24 +210,5 @@ public class VueloController {
             return ResponseEntity.status(500).build();
         }
     }
-
-    /**
-     * POST /v1/vuelos
-     * Crear nuevo vuelo (Administrativo - JWT)
-     */
-    @PostMapping
-    public ResponseEntity<VueloDTO> crearVuelo(@Valid @RequestBody Vuelo vuelo) {
-        try {
-            VueloDTO nuevoVuelo = vueloService.crearVuelo(vuelo);
-            return ResponseEntity.status(201).body(nuevoVuelo);
-            
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-            
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
-    }
-    
 
 }

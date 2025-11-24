@@ -133,7 +133,11 @@ GET http://localhost:8080/v1/vuelos/00000000-0000-0000-0000-000000000000
 
 ### ===================================================================
 
-### 14. CREAR VUELO - Exitoso (Administrativo)
+### 14. CREAR VUELO - MOVIDO A ADMIN CONTROLLER
+### Los endpoints de creación de vuelos ya NO están disponibles en el controlador público
+### Use /v1/admin/vuelos para crear vuelos (solo administrativo)
+
+### Error 404 - Endpoint no existe (debe fallar)
 POST http://localhost:8080/v1/vuelos
 Content-Type: application/json
 
@@ -155,22 +159,6 @@ Content-Type: application/json
   }
 }
 
-### 14. CREAR VUELO - Error fecha inválida
-POST http://localhost:8080/v1/vuelos
-Content-Type: application/json
-
-{
-  "aerolinea": "Avianca",
-  "fechaSalida": "2024-01-01T10:00:00",
-  "fechaLlegada": "2024-01-01T09:00:00",
-  "duracion": "2h30m", 
-  "precio": 350000.0,
-  "moneda": "COP",
-  "clase": "ECONOMICA",
-  "disponibilidad": 180,
-  "estado": "PROGRAMADO"
-}
-
 ### 15. CREAR VUELO - Error campos requeridos
 POST http://localhost:8080/v1/vuelos
 Content-Type: application/json
@@ -181,11 +169,14 @@ Content-Type: application/json
   "disponibilidad": 0
 }
 
+### NOTA: Todos los tests de creación de vuelos se movieron a /v1/admin/vuelos
+### Ver vuelo-admin-controller-tests.http para tests completos de creación con validaciones
+
 ### ===================================================================
 ### CASOS DE PRUEBA ADICIONALES
 ### ===================================================================
 
-### 16. BUSCAR VUELOS - Sin disponibilidad suficiente
+### 21. BUSCAR VUELOS - Sin disponibilidad suficiente
 POST http://localhost:8080/v1/vuelos/buscar
 Content-Type: application/json
 
@@ -197,7 +188,43 @@ Content-Type: application/json
   "clase": "ECONOMICA"
 }
 
-### 17. CREAR RESERVA - Con UUID v4 real (YA CONFIRMADA)
+### 22. BUSCAR VUELOS - Error origen vacío
+POST http://localhost:8080/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "",
+  "destino": "MDE",
+  "fechaSalida": "2025-12-01",
+  "numPasajeros": 1,
+  "clase": "ECONOMICA"
+}
+
+### 23. BUSCAR VUELOS - Error destino vacío
+POST http://localhost:8080/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "BOG",
+  "destino": "",
+  "fechaSalida": "2025-12-01",
+  "numPasajeros": 1,
+  "clase": "ECONOMICA"
+}
+
+### 24. BUSCAR VUELOS - Error origen y destino iguales
+POST http://localhost:8080/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "BOG",
+  "destino": "BOG",
+  "fechaSalida": "2025-12-01",
+  "numPasajeros": 1,
+  "clase": "ECONOMICA"
+}
+
+### 25. CREAR RESERVA - Con UUID v4 real (YA CONFIRMADA)
 POST http://localhost:8080/v1/vuelos/reservar
 Content-Type: application/json
 

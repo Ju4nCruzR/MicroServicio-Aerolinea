@@ -37,12 +37,12 @@ public class Vuelo {
 
     private String estado; // "PROGRAMADO", "EN_VUELO", "COMPLETADO", "CANCELADO"
 
-    @ManyToOne
-    @JoinColumn(name = "codigo_origen")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "codigo_origen", nullable = false)
     private Aeropuerto origen;
 
-    @ManyToOne
-    @JoinColumn(name = "codigo_destino")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "codigo_destino", nullable = false)
     private Aeropuerto destino;
 
     @OneToMany(mappedBy = "vuelo")
