@@ -13,10 +13,18 @@ public class AsientoMapper {
         }
 
         AsientoDTO dto = new AsientoDTO();
-        dto.setIdAsiento(asiento.getAsientoId());
         dto.setNumero(asiento.getNumero());
         dto.setClase(asiento.getClase());
-        dto.setDisponible(asiento.getDisponible());
+        dto.setEstado(asiento.getEstado());
+        dto.setClientIdAsignado(asiento.getClientIdAsignado());
+        
+        // Mapear IDs relacionados
+        if (asiento.getVuelo() != null) {
+            dto.setVueloId(asiento.getVuelo().getVueloId());
+        }
+        if (asiento.getReserva() != null) {
+            dto.setReservaVueloId(asiento.getReserva().getReservaVueloId());
+        }
         return dto;
     }
 
@@ -26,10 +34,11 @@ public class AsientoMapper {
         }
 
         Asiento asiento = new Asiento();
-        asiento.setAsientoId(dto.getIdAsiento());
         asiento.setNumero(dto.getNumero());
         asiento.setClase(dto.getClase());
-        asiento.setDisponible(dto.isDisponible());
+        asiento.setEstado(dto.getEstado());
+        asiento.setClientIdAsignado(dto.getClientIdAsignado());
+        // Nota: Las relaciones con Vuelo y Reserva deben ser manejadas en el servicio
         return asiento;
     }
 }

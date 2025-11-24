@@ -22,9 +22,11 @@ public class Asiento {
 
     private String clase; // "ECONOMICA", "EJECUTIVA", "PRIMERA_CLASE"
 
-    private Boolean disponible;
+    private String estado; // "DISPONIBLE", "BLOQUEADO", "OCUPADO", "ASIGNADO"
 
     private Double precio; // puede variar por asiento
+
+    private String clientIdAsignado; // ID del cliente asignado del ecosistema Turismo
 
     @ManyToOne
     @JoinColumn(name = "reserva_vuelo_id")

@@ -13,17 +13,23 @@ public class VueloMapper {
         }
 
         VueloDTO dto = new VueloDTO();
-        dto.setIdVuelo(vuelo.getVueloId());
-        dto.setCodigo(vuelo.getVueloId());
+        dto.setVueloId(vuelo.getVueloId());
         dto.setFechaSalida(vuelo.getFechaSalida());
         dto.setFechaLlegada(vuelo.getFechaLlegada());
+        dto.setClase(vuelo.getClase());
+        dto.setPrecio(vuelo.getPrecio());
+        dto.setAsientosDisponibles(vuelo.getDisponibilidad());
         dto.setEstado(vuelo.getEstado());
-        dto.setCapacidad(vuelo.getDisponibilidad());
+        dto.setAerolinea(vuelo.getAerolinea());
+        dto.setDuracion(vuelo.getDuracion());
+        dto.setMoneda(vuelo.getMoneda());
+        
+        // Mapear códigos IATA de aeropuertos
         if (vuelo.getOrigen() != null) {
-            dto.setIdAeropuertoOrigen(vuelo.getOrigen().getCodigoIATA());
+            dto.setOrigen(vuelo.getOrigen().getCodigoIATA());
         }
         if (vuelo.getDestino() != null) {
-            dto.setIdAeropuertoDestino(vuelo.getDestino().getCodigoIATA());
+            dto.setDestino(vuelo.getDestino().getCodigoIATA());
         }
         return dto;
     }
@@ -34,12 +40,16 @@ public class VueloMapper {
         }
 
         Vuelo vuelo = new Vuelo();
-        vuelo.setVueloId(dto.getIdVuelo());
-        vuelo.setVueloId(dto.getCodigo());
+        vuelo.setVueloId(dto.getVueloId());
         vuelo.setFechaSalida(dto.getFechaSalida());
         vuelo.setFechaLlegada(dto.getFechaLlegada());
+        vuelo.setClase(dto.getClase());
+        vuelo.setPrecio(dto.getPrecio());
+        vuelo.setDisponibilidad(dto.getAsientosDisponibles());
         vuelo.setEstado(dto.getEstado());
-        vuelo.setDisponibilidad(dto.getCapacidad());
+        vuelo.setAerolinea(dto.getAerolinea());
+        vuelo.setDuracion(dto.getDuracion());
+        vuelo.setMoneda(dto.getMoneda());
         // Nota: Las relaciones con Aeropuerto deben ser manejadas en el servicio
         return vuelo;
     }

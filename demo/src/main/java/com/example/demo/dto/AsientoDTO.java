@@ -9,8 +9,10 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AsientoDTO {
 
-    private String idAsiento;
-    private String numero;
-    private String clase;
-    private boolean disponible;
+    private String numero; // Número del asiento en formato "12A"
+    private String clase; // "ECONOMICA", "EJECUTIVA", "PRIMERA_CLASE"
+    private String estado; // "DISPONIBLE", "BLOQUEADO", "OCUPADO", "ASIGNADO"
+    private String vueloId; // UUID v4 del vuelo al que pertenece
+    private String clientIdAsignado; // ID del cliente asignado (puede ser null)
+    private String reservaVueloId; // ID de la reserva asociada (puede ser null)
 }

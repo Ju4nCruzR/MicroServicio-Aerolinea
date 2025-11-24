@@ -13,10 +13,11 @@ public class AeropuertoMapper {
         }
 
         AeropuertoDTO dto = new AeropuertoDTO();
-        dto.setIdAeropuerto(aeropuerto.getCodigoIATA());
+        dto.setCodigoIATA(aeropuerto.getCodigoIATA()); // Código IATA como identificador
         dto.setNombre(aeropuerto.getNombre());
         dto.setCiudad(aeropuerto.getCiudad());
         dto.setPais(aeropuerto.getPais());
+        dto.setCodigoICAO(aeropuerto.getCodigoICAO());
         return dto;
     }
 
@@ -26,10 +27,11 @@ public class AeropuertoMapper {
         }
 
         Aeropuerto aeropuerto = new Aeropuerto();
-        aeropuerto.setCodigoIATA(dto.getIdAeropuerto());
+        aeropuerto.setCodigoIATA(dto.getCodigoIATA());
         aeropuerto.setNombre(dto.getNombre());
         aeropuerto.setCiudad(dto.getCiudad());
         aeropuerto.setPais(dto.getPais());
+        aeropuerto.setCodigoICAO(dto.getCodigoICAO());
         return aeropuerto;
     }
 }

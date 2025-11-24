@@ -13,10 +13,11 @@ public class PasajeroMapper {
         }
 
         PasajeroDTO dto = new PasajeroDTO();
-        dto.setIdPasajero(pasajero.getPasajeroId());
+        dto.setClientId(pasajero.getClientId());
         dto.setNombre(pasajero.getNombre());
         dto.setEmail(pasajero.getEmail());
-        dto.setDocumento(pasajero.getNumeroDocumento());
+        dto.setNumeroDocumento(pasajero.getNumeroDocumento());
+        
         return dto;
     }
 
@@ -26,10 +27,11 @@ public class PasajeroMapper {
         }
 
         Pasajero pasajero = new Pasajero();
-        pasajero.setPasajeroId(dto.getIdPasajero());
+        pasajero.setClientId(dto.getClientId());
         pasajero.setNombre(dto.getNombre());
         pasajero.setEmail(dto.getEmail());
-        pasajero.setTipoDocumento(dto.getDocumento());
+        pasajero.setNumeroDocumento(dto.getNumeroDocumento());
+        
         return pasajero;
     }
 }

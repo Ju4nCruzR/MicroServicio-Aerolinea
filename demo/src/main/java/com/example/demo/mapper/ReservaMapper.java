@@ -13,17 +13,23 @@ public class ReservaMapper {
         }
 
         ReservaDTO dto = new ReservaDTO();
-        dto.setIdReserva(reserva.getReservaVueloId());
-        dto.setFechaReserva(reserva.getFechaCreacion());
+        dto.setReservaVueloId(reserva.getReservaVueloId());
+        dto.setReservaConfirmadaId(reserva.getReservaConfirmadaId());
+        dto.setNumPasajeros(reserva.getNumPasajeros());
+        dto.setContactoReserva(reserva.getContactoReserva());
+        dto.setDocumentoContacto(reserva.getDocumentoContacto());
+        dto.setPrecioTotal(reserva.getPrecioTotal());
         dto.setEstado(reserva.getEstado());
+        dto.setFechaCreacion(reserva.getFechaCreacion());
+        dto.setFechaExpiracion(reserva.getFechaExpiracion());
+        dto.setFechaConfirmacion(reserva.getFechaConfirmacion());
+        dto.setFechaCancelacion(reserva.getFechaCancelacion());
+        dto.setTransaccionId(reserva.getTransaccionId());
+        dto.setObservaciones(reserva.getObservaciones());
+        dto.setUrlComprobante(reserva.getUrlComprobante());
+        
         if (reserva.getVuelo() != null) {
-            dto.setIdVuelo(reserva.getVuelo().getVueloId());
-        }
-        if (reserva.getPasajeros() != null && !reserva.getPasajeros().isEmpty()) {
-            dto.setIdPasajero(reserva.getPasajeros().get(0).getPasajeroId());
-        }
-        if (reserva.getAsientos() != null && !reserva.getAsientos().isEmpty()) {
-            dto.setIdAsiento(reserva.getAsientos().get(0).getAsientoId());
+            dto.setVueloId(reserva.getVuelo().getVueloId());
         }
         return dto;
     }
@@ -34,11 +40,21 @@ public class ReservaMapper {
         }
 
         Reserva reserva = new Reserva();
-        reserva.setReservaVueloId(dto.getIdReserva());
-        reserva.setFechaCreacion(dto.getFechaReserva());
+        reserva.setReservaVueloId(dto.getReservaVueloId());
+        reserva.setReservaConfirmadaId(dto.getReservaConfirmadaId());
+        reserva.setNumPasajeros(dto.getNumPasajeros());
+        reserva.setContactoReserva(dto.getContactoReserva());
+        reserva.setDocumentoContacto(dto.getDocumentoContacto());
+        reserva.setPrecioTotal(dto.getPrecioTotal());
         reserva.setEstado(dto.getEstado());
-        // Nota: Las relaciones con Vuelo, Pasajero y Asiento deben ser manejadas en el
-        // servicio
+        reserva.setFechaCreacion(dto.getFechaCreacion());
+        reserva.setFechaExpiracion(dto.getFechaExpiracion());
+        reserva.setFechaConfirmacion(dto.getFechaConfirmacion());
+        reserva.setFechaCancelacion(dto.getFechaCancelacion());
+        reserva.setTransaccionId(dto.getTransaccionId());
+        reserva.setObservaciones(dto.getObservaciones());
+        reserva.setUrlComprobante(dto.getUrlComprobante());
+        // Nota: Las relaciones con Vuelo deben ser manejadas en el servicio
         return reserva;
     }
 }

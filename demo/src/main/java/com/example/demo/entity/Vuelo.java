@@ -14,18 +14,13 @@ import java.util.List;
 public class Vuelo {
 
     @Id
-    private String vueloId; // Ej: "AV123"
+    private String vueloId; // UUID v4 según especificaciones del ecosistema
 
     private String aerolinea; // Ej: "Avianca"
 
-    // private String codigoOrigen; // Código IATA del aeropuerto origen (Ej: "BOG")
+    private LocalDateTime fechaSalida; // Formato ISO 8601
 
-    // private String codigoDestino; // Código IATA del aeropuerto destino (Ej:
-    // "MDE")
-
-    private LocalDateTime fechaSalida; // Formato: "20251110T090000"
-
-    private LocalDateTime fechaLlegada; // Formato: "20251110T101500"
+    private LocalDateTime fechaLlegada; // Formato ISO 8601
 
     private String duracion; // Ej: "1h15m"
 
@@ -33,11 +28,13 @@ public class Vuelo {
 
     private String moneda; // Ej: "COP"
 
-    private String clase; // Enum: "ECONOMICA", "EJECUTIVA", "PRIMERA_CLASE"
+    private String clase; // "ECONOMICA", "EJECUTIVA", "PRIMERA_CLASE"
 
     private Integer disponibilidad; // Número de asientos disponibles
 
-    private String estado; // Enum: "PROGRAMADO", "EN_VUELO", "COMPLETADO", "CANCELADO"
+    private Integer capacidadTotal; // Capacidad total del vuelo
+
+    private String estado; // "PROGRAMADO", "EN_VUELO", "COMPLETADO", "CANCELADO"
 
     @ManyToOne
     @JoinColumn(name = "codigo_origen")
