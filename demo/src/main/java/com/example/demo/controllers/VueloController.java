@@ -10,10 +10,10 @@ import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 import com.example.demo.service.VueloService;
 import com.example.demo.service.ReservaService;
-import com.example.demo.service.PasajeroService;
 import com.example.demo.dto.*;
 import com.example.demo.entity.Vuelo;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +28,6 @@ public class VueloController {
     
     @Autowired
     private ReservaService reservaService;
-    
-    @Autowired
-    private PasajeroService pasajeroService;
 
     /**
      * POST /v1/vuelos/buscar
@@ -123,46 +120,53 @@ public class VueloController {
         }
     }
 
+
+
     /**
-     * POST /v1/vuelos/reservas/confirmar
-     * Confirmar o denegar pre-reserva
+     * PUT /v1/vuelos/reservas/{reservaId}/confirmar
+     * Confirmar reserva después del procesamiento bancario
      */
-    @PostMapping("/reservas/confirmar")
-    public ResponseEntity<ConfirmacionResponseDTO> confirmarReserva(@Valid @RequestBody ConfirmacionRequestDTO request) {
+    @PutMapping("/reservas/{reservaId}/confirmar")
+    public ResponseEntity<ConfirmacionReservaResponseDTO> confirmarReserva(
+            @PathVariable String reservaId, 
+            @Valid @RequestBody ConfirmacionReservaRequestDTO request) {
         try {
-            ReservaDTO reservaConfirmada = reservaService.confirmarODenegarReserva(
-                request.getReservaVueloId(),
-                request.getTransaccionId(),
-                request.getPrecioTotalConfirmado(),
-                request.getEstado()
+            // Confirmar reserva usando el servicio
+            ReservaDTO reservaConfirmada = reservaService.confirmarReserva(
+                reservaId,
+                request.getTransaccionBancariaId(),
+                request.getMetodoPago()
             );
             
             // Crear respuesta específica
-            ConfirmacionResponseDTO response = new ConfirmacionResponseDTO();
-            response.setReservaConfirmadaId(reservaConfirmada.getReservaConfirmadaId());
+            ConfirmacionReservaResponseDTO response = new ConfirmacionReservaResponseDTO();
+            response.setReservaVueloId(reservaConfirmada.getReservaVueloId());
+            response.setPnr(reservaConfirmada.getReservaConfirmadaId()); // PNR está en este campo
             response.setEstadoFinal(reservaConfirmada.getEstado());
-            response.setPrecioTotalConfirmado(reservaConfirmada.getPrecioTotal());
+            response.setTransaccionBancariaId(reservaConfirmada.getTransaccionId()); // TransaccionId es el campo correcto
+            response.setObservaciones("Reserva confirmada exitosamente");
+            
             return ResponseEntity.ok(response);
             
         } catch (IllegalArgumentException e) {
-            ConfirmacionResponseDTO errorResponse = new ConfirmacionResponseDTO();
-            errorResponse.setReservaConfirmadaId(null);
+            ConfirmacionReservaResponseDTO errorResponse = new ConfirmacionReservaResponseDTO();
+            errorResponse.setReservaVueloId(reservaId);
             errorResponse.setEstadoFinal("ERROR");
-            errorResponse.setPrecioTotalConfirmado(0.0);
+            errorResponse.setObservaciones("Error de validación: " + e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
             
         } catch (IllegalStateException e) {
-            ConfirmacionResponseDTO errorResponse = new ConfirmacionResponseDTO();
-            errorResponse.setReservaConfirmadaId(null);
-            errorResponse.setEstadoFinal("CONFLICTO");
-            errorResponse.setPrecioTotalConfirmado(0.0);
+            ConfirmacionReservaResponseDTO errorResponse = new ConfirmacionReservaResponseDTO();
+            errorResponse.setReservaVueloId(reservaId);
+            errorResponse.setEstadoFinal("ERROR");
+            errorResponse.setObservaciones("Estado inválido: " + e.getMessage());
             return ResponseEntity.status(409).body(errorResponse);
             
         } catch (Exception e) {
-            ConfirmacionResponseDTO errorResponse = new ConfirmacionResponseDTO();
-            errorResponse.setReservaConfirmadaId(null);
+            ConfirmacionReservaResponseDTO errorResponse = new ConfirmacionReservaResponseDTO();
+            errorResponse.setReservaVueloId(reservaId);
             errorResponse.setEstadoFinal("ERROR");
-            errorResponse.setPrecioTotalConfirmado(0.0);
+            errorResponse.setObservaciones("Error interno del servidor");
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
@@ -190,51 +194,11 @@ public class VueloController {
     }
 
     /**
-     * POST /v1/vuelos/pasajeros/asignar
-     * Asignar asiento a pasajero (check-in)
-     */
-    @PostMapping("/pasajeros/asignar")
-    public ResponseEntity<AsignacionPasajeroResponseDTO> asignarPasajero(@Valid @RequestBody AsignacionPasajeroRequestDTO request) {
-        try {
-            boolean asignado = pasajeroService.asignarAsientoAPasajero(
-                request.getFlightId(),
-                request.getClientId(),
-                request.getReservationId(),
-                request.getAsiento()
-            );
-            
-            AsignacionPasajeroResponseDTO response = new AsignacionPasajeroResponseDTO();
-            response.setAsignacionId(java.util.UUID.randomUUID().toString());
-            response.setEstado(asignado ? "ASIGNADO" : "ERROR");
-            
-            return ResponseEntity.ok(response);
-            
-        } catch (IllegalArgumentException e) {
-            AsignacionPasajeroResponseDTO errorResponse = new AsignacionPasajeroResponseDTO();
-            errorResponse.setAsignacionId(null);
-            errorResponse.setEstado("ERROR");
-            return ResponseEntity.badRequest().body(errorResponse);
-            
-        } catch (IllegalStateException e) {
-            AsignacionPasajeroResponseDTO errorResponse = new AsignacionPasajeroResponseDTO();
-            errorResponse.setAsignacionId(null);
-            errorResponse.setEstado("CONFLICTO");
-            return ResponseEntity.status(409).body(errorResponse);
-            
-        } catch (Exception e) {
-            AsignacionPasajeroResponseDTO errorResponse = new AsignacionPasajeroResponseDTO();
-            errorResponse.setAsignacionId(null);
-            errorResponse.setEstado("ERROR");
-            return ResponseEntity.status(500).body(errorResponse);
-        }
-    }
-
-    /**
      * GET /v1/vuelos/{vueloId}
      * Consultar vuelo específico (Administrativo - JWT)
      */
     @GetMapping("/{vueloId}")
-    public ResponseEntity<VueloDTO> obtenerVuelo(@PathVariable String vueloId) {
+    public ResponseEntity<VueloDTO> obtenerVuelo(@PathVariable UUID vueloId) {
         try {
             VueloDTO vuelo = vueloService.consultarVuelo(vueloId);
             if (vuelo != null) {

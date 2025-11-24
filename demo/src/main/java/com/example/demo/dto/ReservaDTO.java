@@ -12,7 +12,7 @@ public class ReservaDTO {
 
     private String reservaVueloId; // ID alfanumérico de la pre-reserva
     private String reservaConfirmadaId; // PNR generado al confirmar (puede ser null)
-    private String vueloId; // UUID v4 del vuelo
+    private java.util.UUID vueloId; // UUID v4 del vuelo
     private Integer numPasajeros; // Número de pasajeros en la reserva
     private String contactoReserva; // Nombre del contacto
     private String documentoContacto; // Documento de identidad del contacto

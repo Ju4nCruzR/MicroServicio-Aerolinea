@@ -1,0 +1,219 @@
+### ===================================================================
+### PRUEBAS HTTP PARA VUELO CONTROLLER - ECOSISTEMA TURISMO
+### ===================================================================
+
+### 1. BUSCAR VUELOS - Búsqueda exitosa
+POST http://localhost:8080/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "BOG",
+  "destino": "MDE",
+  "fechaSalida": "2025-12-01",
+  "fechaRegreso": null,
+  "numPasajeros": 2,
+  "clase": "ECONOMICA"
+}
+
+### 2. BUSCAR VUELOS - Error fecha pasada
+POST http://localhost:8080/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "BOG",
+  "destino": "MDE",
+  "fechaSalida": "2024-01-01",
+  "fechaRegreso": null,
+  "numPasajeros": 1,
+  "clase": "ECONOMICA"
+}
+
+### 3. BUSCAR VUELOS - Error código IATA inválido
+POST http://localhost:8080/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "BOGOTA",
+  "destino": "MDE",  
+  "fechaSalida": "2025-12-01",
+  "fechaRegreso": null,
+  "numPasajeros": 1,
+  "clase": "ECONOMICA"
+}
+
+### 4. BUSCAR VUELOS - Vuelos ida y vuelta
+POST http://localhost:8080/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "BOG",
+  "destino": "BAQ",
+  "fechaSalida": "2025-12-01",
+  "fechaRegreso": "2025-12-05",
+  "numPasajeros": 1,
+  "clase": "ECONOMICA"
+}
+
+### ===================================================================
+
+### 5. CREAR PRE-RESERVA - Exitosa
+POST http://localhost:8080/v1/vuelos/reservar
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "numPasajeros": 1,
+  "contactoReserva": "Juan Pérez",
+  "documentoContacto": "12345678"
+}
+
+### 6. CREAR PRE-RESERVA - Error vuelo inexistente
+POST http://localhost:8080/v1/vuelos/reservar
+Content-Type: application/json
+
+{
+  "vueloId": "VUELO_INEXISTENTE",
+  "numPasajeros": 1,
+  "contactoReserva": "Juan Pérez",
+  "documentoContacto": "12345678"
+}
+
+### 7. CREAR PRE-RESERVA - Error validación
+POST http://localhost:8080/v1/vuelos/reservar
+Content-Type: application/json
+
+{
+  "vueloId": "",
+  "numPasajeros": 0,
+  "contactoReserva": "",
+  "documentoContacto": ""
+}
+
+### ===================================================================
+
+### ===================================================================
+
+### 8. CONFIRMAR RESERVA - Después del procesamiento bancario
+PUT http://localhost:8080/v1/vuelos/reservas/RSV1764014904365126/confirmar
+Content-Type: application/json
+
+{
+  "transaccionBancariaId": "TXB123456789",
+  "metodoPago": "TARJETA_CREDITO"
+}
+
+### 9. CONFIRMAR RESERVA - Error reserva inexistente
+PUT http://localhost:8080/v1/vuelos/reservas/RESERVA_INEXISTENTE/confirmar
+Content-Type: application/json
+
+{
+  "transaccionBancariaId": "TXB123456789",
+  "metodoPago": "TARJETA_CREDITO"
+}
+
+### ===================================================================
+
+### 10. CANCELAR RESERVA - Exitosa
+DELETE http://localhost:8080/v1/vuelos/reservas/RSV1764014904365126
+
+### 11. CANCELAR RESERVA - Reserva inexistente
+DELETE http://localhost:8080/v1/vuelos/reservas/RESERVA_INEXISTENTE
+
+### ===================================================================
+### ASIGNACIÓN DE ASIENTOS ELIMINADA
+### Las reservas incluyen automáticamente la ocupación del vuelo
+### Solo se maneja cantidad de pasajeros sin asientos específicos
+### ===================================================================
+
+### 12. OBTENER VUELO ESPECÍFICO - Exitoso (Administrativo)
+GET http://localhost:8080/v1/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+
+### 13. OBTENER VUELO ESPECÍFICO - Vuelo inexistente
+GET http://localhost:8080/v1/vuelos/00000000-0000-0000-0000-000000000000
+
+### ===================================================================
+
+### 14. CREAR VUELO - Exitoso (Administrativo)
+POST http://localhost:8080/v1/vuelos
+Content-Type: application/json
+
+{
+  "aerolinea": "Avianca",
+  "fechaSalida": "2025-12-15T10:00:00",
+  "fechaLlegada": "2025-12-15T12:30:00", 
+  "duracion": "2h30m",
+  "precio": 350000.0,
+  "moneda": "COP",
+  "clase": "ECONOMICA",
+  "disponibilidad": 180,
+  "estado": "PROGRAMADO",
+  "origen": {
+    "codigoIATA": "BOG"
+  },
+  "destino": {
+    "codigoIATA": "CTG"
+  }
+}
+
+### 14. CREAR VUELO - Error fecha inválida
+POST http://localhost:8080/v1/vuelos
+Content-Type: application/json
+
+{
+  "aerolinea": "Avianca",
+  "fechaSalida": "2024-01-01T10:00:00",
+  "fechaLlegada": "2024-01-01T09:00:00",
+  "duracion": "2h30m", 
+  "precio": 350000.0,
+  "moneda": "COP",
+  "clase": "ECONOMICA",
+  "disponibilidad": 180,
+  "estado": "PROGRAMADO"
+}
+
+### 15. CREAR VUELO - Error campos requeridos
+POST http://localhost:8080/v1/vuelos
+Content-Type: application/json
+
+{
+  "aerolinea": "",
+  "precio": -100,
+  "disponibilidad": 0
+}
+
+### ===================================================================
+### CASOS DE PRUEBA ADICIONALES
+### ===================================================================
+
+### 16. BUSCAR VUELOS - Sin disponibilidad suficiente
+POST http://localhost:8080/v1/vuelos/buscar
+Content-Type: application/json
+
+{
+  "origen": "BOG",
+  "destino": "MDE", 
+  "fechaSalida": "2025-12-01",
+  "numPasajeros": 50,
+  "clase": "ECONOMICA"
+}
+
+### 17. CREAR RESERVA - Con UUID v4 real (YA CONFIRMADA)
+POST http://localhost:8080/v1/vuelos/reservar
+Content-Type: application/json
+
+{
+  "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "numPasajeros": 2,
+  "contactoReserva": "María García", 
+  "documentoContacto": "87654321"
+}
+
+### ===================================================================
+### VARIABLES DE ENTORNO PARA PRUEBAS
+### ===================================================================
+### Para usar en VS Code REST Client:
+### @baseUrl = http://localhost:8080
+### @validUUID = f47ac10b-58cc-4372-a567-0e02b2c3d479
+### @validReservaId = RSV001JUAN
+### @validClientId = CLT001JUAN
+### ===================================================================

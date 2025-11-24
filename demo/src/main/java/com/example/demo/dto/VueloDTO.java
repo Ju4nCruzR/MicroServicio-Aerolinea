@@ -4,13 +4,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class VueloDTO {
 
-    private String vueloId; // UUID v4 según especificaciones del ecosistema
+    private UUID id; // UUID v4 del vuelo
     private String origen; // Código IATA del aeropuerto origen (ej: "BOG")
     private String destino; // Código IATA del aeropuerto destino (ej: "MDE")
     private LocalDateTime fechaSalida; // Formato ISO 8601

@@ -13,7 +13,7 @@ public class VueloMapper {
         }
 
         VueloDTO dto = new VueloDTO();
-        dto.setVueloId(vuelo.getVueloId());
+        dto.setId(vuelo.getVueloId());
         dto.setFechaSalida(vuelo.getFechaSalida());
         dto.setFechaLlegada(vuelo.getFechaLlegada());
         dto.setClase(vuelo.getClase());
@@ -40,7 +40,7 @@ public class VueloMapper {
         }
 
         Vuelo vuelo = new Vuelo();
-        vuelo.setVueloId(dto.getVueloId());
+        vuelo.setVueloId(dto.getId());
         vuelo.setFechaSalida(dto.getFechaSalida());
         vuelo.setFechaLlegada(dto.getFechaLlegada());
         vuelo.setClase(dto.getClase());

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -14,7 +15,7 @@ import java.util.List;
 public class Vuelo {
 
     @Id
-    private String vueloId; // UUID v4 según especificaciones del ecosistema
+    private UUID vueloId; // UUID v4 según especificaciones del ecosistema
 
     private String aerolinea; // Ej: "Avianca"
 
@@ -46,7 +47,4 @@ public class Vuelo {
 
     @OneToMany(mappedBy = "vuelo")
     private List<Reserva> reservas;
-
-    @OneToMany(mappedBy = "vuelo")
-    private List<Asiento> asientos;
 }

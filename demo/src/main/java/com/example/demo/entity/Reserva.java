@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Data
@@ -45,11 +44,5 @@ public class Reserva {
     private String observaciones;
 
     private String urlComprobante; // URL del comprobante PDF (se genera al confirmar)
-
-    @OneToMany(mappedBy = "reserva")
-    private List<Pasajero> pasajeros;
-
-    @OneToMany(mappedBy = "reserva")
-    private List<Asiento> asientos;
 
 }

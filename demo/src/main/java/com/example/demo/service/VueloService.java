@@ -1,12 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Vuelo;
-import com.example.demo.entity.Aeropuerto;
 import com.example.demo.dto.VueloDTO;
 import com.example.demo.mapper.VueloMapper;
 import com.example.demo.repository.VueloRepository;
 import com.example.demo.repository.AeropuertoRepository;
-import com.example.demo.repository.AsientoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,15 +24,12 @@ public class VueloService {
     private AeropuertoRepository aeropuertoRepository;
 
     @Autowired
-    private AsientoRepository asientoRepository;
-
-    @Autowired
     private VueloMapper vueloMapper;
 
     public VueloDTO crearVuelo(Vuelo vuelo) {
         // Generar UUID v4 si no se proporciona
-        if (vuelo.getVueloId() == null || vuelo.getVueloId().isEmpty()) {
-            vuelo.setVueloId(UUID.randomUUID().toString());
+        if (vuelo.getVueloId() == null) {
+            vuelo.setVueloId(UUID.randomUUID());
         }
 
         // Validar fechas coherentes
@@ -74,7 +69,7 @@ public class VueloService {
         return vueloMapper.toDTO(savedVuelo);
     }
 
-    public VueloDTO consultarVuelo(String idVuelo) {
+    public VueloDTO consultarVuelo(UUID idVuelo) {
         Vuelo vuelo = vueloRepository.findById(idVuelo).orElse(null);
         return vuelo != null ? vueloMapper.toDTO(vuelo) : null;
     }
@@ -91,18 +86,13 @@ public class VueloService {
         return vueloMapper.toDTO(savedVuelo);
     }
 
-    public void eliminarVuelo(String idVuelo) {
+    public void eliminarVuelo(UUID idVuelo) {
         Vuelo vuelo = vueloRepository.findById(idVuelo)
             .orElseThrow(() -> new IllegalArgumentException("Vuelo no encontrado"));
         
-        // REGLA DE NEGOCIO: No eliminar vuelos con asignaciones operativas activas
-        long asientosAsignados = asientoRepository.findAll().stream()
-            .filter(a -> a.getVuelo() != null && a.getVuelo().getVueloId().equals(idVuelo))
-            .filter(a -> "ASIGNADO".equals(a.getEstado()) || "OCUPADO".equals(a.getEstado()))
-            .count();
-            
-        if (asientosAsignados > 0) {
-            throw new IllegalStateException("No se puede eliminar un vuelo con asignaciones operativas activas");
+        // REGLA DE NEGOCIO: No eliminar vuelos con reservas activas
+        if (vuelo.getDisponibilidad() < vuelo.getCapacidadTotal()) {
+            throw new IllegalStateException("No se puede eliminar un vuelo con reservas activas");
         }
         
         // REGLA DE NEGOCIO: No eliminar vuelos en estado EN_VUELO
@@ -123,7 +113,7 @@ public class VueloService {
 
     /**
      * Busca vuelos según criterios del ecosistema turístico
-     * Calcula disponibilidad real restando asientos ocupados/bloqueados
+     * Usa disponibilidad directa del vuelo (sin gestión de asientos específicos)
      */
     public List<VueloDTO> buscarVuelos(String origin, String destination, Integer numPasajeros, 
                                        LocalDate departureDate, LocalDate returnDate, String clase) {
@@ -158,15 +148,8 @@ public class VueloService {
                     // Filtrar por clase si se especifica
                     boolean coincideClase = clase == null || clase.equals(vuelo.getClase());
                     
-                    // Calcular disponibilidad real
-                    long asientosOcupados = asientoRepository.findAll().stream()
-                        .filter(a -> a.getVuelo() != null && a.getVuelo().getVueloId().equals(vuelo.getVueloId()))
-                        .filter(a -> "OCUPADO".equals(a.getEstado()) || "BLOQUEADO".equals(a.getEstado()) || "ASIGNADO".equals(a.getEstado()))
-                        .filter(a -> clase == null || clase.equals(a.getClase()))
-                        .count();
-                    
-                    int disponibilidadReal = vuelo.getDisponibilidad() - (int) asientosOcupados;
-                    boolean hayDisponibilidad = disponibilidadReal >= numPasajeros;
+                    // Verificar disponibilidad suficiente (simplificado)
+                    boolean hayDisponibilidad = vuelo.getDisponibilidad() >= numPasajeros;
                     
                     // Filtrar por fecha de salida si se proporciona
                     boolean coincideFechaSalida = departureDate == null || 
@@ -180,13 +163,8 @@ public class VueloService {
                 })
                 .map(vuelo -> {
                     VueloDTO dto = vueloMapper.toDTO(vuelo);
-                    // Actualizar disponibilidad real en el DTO
-                    long asientosOcupados = asientoRepository.findAll().stream()
-                        .filter(a -> a.getVuelo() != null && a.getVuelo().getVueloId().equals(vuelo.getVueloId()))
-                        .filter(a -> "OCUPADO".equals(a.getEstado()) || "BLOQUEADO".equals(a.getEstado()) || "ASIGNADO".equals(a.getEstado()))
-                        .filter(a -> clase == null || clase.equals(a.getClase()))
-                        .count();
-                    dto.setAsientosDisponibles(vuelo.getDisponibilidad() - (int) asientosOcupados);
+                    // Usar disponibilidad directa del vuelo
+                    dto.setAsientosDisponibles(vuelo.getDisponibilidad());
                     return dto;
                 })
                 .collect(Collectors.toList());

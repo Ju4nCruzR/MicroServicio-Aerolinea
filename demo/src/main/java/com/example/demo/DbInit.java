@@ -7,8 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
+
 
 @Component
 public class DbInit implements CommandLineRunner {
@@ -18,9 +18,6 @@ public class DbInit implements CommandLineRunner {
 
     @Autowired
     private VueloRepository vueloRepository;
-
-    @Autowired
-    private AsientoRepository asientoRepository;
 
     @Autowired
     private PasajeroRepository pasajeroRepository;
@@ -55,97 +52,94 @@ public class DbInit implements CommandLineRunner {
         baq.setCodigoICAO("SKBQ");
         aeropuertoRepository.save(baq);
 
-        // Crear vuelos con UUID v4
+        // Crear vuelos con UUID v4 - Datos para coincidir con pruebas HTTP
+        // Vuelo BOG -> MDE para las pruebas de búsqueda (diciembre 1)
+        UUID vuelo1UUID = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479"); // UUID fijo para pruebas
         Vuelo vuelo1 = new Vuelo();
-        vuelo1.setVueloId(UUID.randomUUID().toString());
+        vuelo1.setVueloId(vuelo1UUID);
         vuelo1.setAerolinea("Avianca");
-        vuelo1.setFechaSalida(LocalDateTime.of(2025, 11, 7, 8, 0));
-        vuelo1.setFechaLlegada(LocalDateTime.of(2025, 11, 7, 9, 30));
+        vuelo1.setFechaSalida(LocalDateTime.of(2025, 12, 1, 8, 0));
+        vuelo1.setFechaLlegada(LocalDateTime.of(2025, 12, 1, 9, 30));
         vuelo1.setDuracion("1h30m");
         vuelo1.setPrecio(250000.0);
         vuelo1.setMoneda("COP");
         vuelo1.setClase("ECONOMICA");
-        vuelo1.setDisponibilidad(10);
+        vuelo1.setDisponibilidad(180);
+        vuelo1.setCapacidadTotal(180);
         vuelo1.setEstado("PROGRAMADO");
         vuelo1.setOrigen(bog);
         vuelo1.setDestino(mde);
         vueloRepository.save(vuelo1);
 
+        // Vuelo BOG -> MDE para las pruebas (diciembre 1, horario tarde)
         Vuelo vuelo2 = new Vuelo();
-        vuelo2.setVueloId(UUID.randomUUID().toString());
+        vuelo2.setVueloId(UUID.randomUUID());
         vuelo2.setAerolinea("Avianca");
-        vuelo2.setFechaSalida(LocalDateTime.of(2025, 11, 7, 10, 0));
-        vuelo2.setFechaLlegada(LocalDateTime.of(2025, 11, 7, 11, 30));
+        vuelo2.setFechaSalida(LocalDateTime.of(2025, 12, 1, 14, 0));
+        vuelo2.setFechaLlegada(LocalDateTime.of(2025, 12, 1, 15, 30));
         vuelo2.setDuracion("1h30m");
-        vuelo2.setPrecio(200000.0);
+        vuelo2.setPrecio(280000.0);
         vuelo2.setMoneda("COP");
         vuelo2.setClase("ECONOMICA");
-        vuelo2.setDisponibilidad(10);
+        vuelo2.setDisponibilidad(150);
+        vuelo2.setCapacidadTotal(150);
         vuelo2.setEstado("PROGRAMADO");
-        vuelo2.setOrigen(mde);
-        vuelo2.setDestino(baq);
+        vuelo2.setOrigen(bog);
+        vuelo2.setDestino(mde);
         vueloRepository.save(vuelo2);
 
+        // Vuelo BOG -> BAQ para las pruebas de ida y vuelta (diciembre 1)
         Vuelo vuelo3 = new Vuelo();
-        vuelo3.setVueloId(UUID.randomUUID().toString());
+        vuelo3.setVueloId(UUID.randomUUID());
         vuelo3.setAerolinea("Avianca");
-        vuelo3.setFechaSalida(LocalDateTime.of(2025, 11, 7, 12, 0));
-        vuelo3.setFechaLlegada(LocalDateTime.of(2025, 11, 7, 13, 30));
-        vuelo3.setDuracion("1h30m");
-        vuelo3.setPrecio(220000.0);
+        vuelo3.setFechaSalida(LocalDateTime.of(2025, 12, 1, 10, 0));
+        vuelo3.setFechaLlegada(LocalDateTime.of(2025, 12, 1, 12, 0));
+        vuelo3.setDuracion("2h00m");
+        vuelo3.setPrecio(320000.0);
         vuelo3.setMoneda("COP");
         vuelo3.setClase("ECONOMICA");
-        vuelo3.setDisponibilidad(10);
+        vuelo3.setDisponibilidad(200);
+        vuelo3.setCapacidadTotal(200);
         vuelo3.setEstado("PROGRAMADO");
-        vuelo3.setOrigen(baq);
-        vuelo3.setDestino(bog);
+        vuelo3.setOrigen(bog);
+        vuelo3.setDestino(baq);
         vueloRepository.save(vuelo3);
 
+        // Vuelo BAQ -> BOG para vuelta (diciembre 5)
         Vuelo vuelo4 = new Vuelo();
-        vuelo4.setVueloId(UUID.randomUUID().toString());
+        vuelo4.setVueloId(UUID.randomUUID());
         vuelo4.setAerolinea("Avianca");
-        vuelo4.setFechaSalida(LocalDateTime.of(2025, 11, 8, 8, 0));
-        vuelo4.setFechaLlegada(LocalDateTime.of(2025, 11, 8, 9, 30));
-        vuelo4.setDuracion("1h30m");
-        vuelo4.setPrecio(240000.0);
+        vuelo4.setFechaSalida(LocalDateTime.of(2025, 12, 5, 16, 0));
+        vuelo4.setFechaLlegada(LocalDateTime.of(2025, 12, 5, 18, 0));
+        vuelo4.setDuracion("2h00m");
+        vuelo4.setPrecio(340000.0);
         vuelo4.setMoneda("COP");
         vuelo4.setClase("ECONOMICA");
-        vuelo4.setDisponibilidad(10);
+        vuelo4.setDisponibilidad(180);
+        vuelo4.setCapacidadTotal(180);
         vuelo4.setEstado("PROGRAMADO");
-        vuelo4.setOrigen(bog);
-        vuelo4.setDestino(baq);
+        vuelo4.setOrigen(baq);
+        vuelo4.setDestino(bog);
         vueloRepository.save(vuelo4);
 
+        // Vuelo adicional BOG -> MDE con poca disponibilidad para pruebas de error
         Vuelo vuelo5 = new Vuelo();
-        vuelo5.setVueloId(UUID.randomUUID().toString());
+        vuelo5.setVueloId(UUID.randomUUID());
         vuelo5.setAerolinea("Avianca");
-        vuelo5.setFechaSalida(LocalDateTime.of(2025, 11, 8, 10, 0));
-        vuelo5.setFechaLlegada(LocalDateTime.of(2025, 11, 8, 11, 30));
+        vuelo5.setFechaSalida(LocalDateTime.of(2025, 12, 1, 18, 0));
+        vuelo5.setFechaLlegada(LocalDateTime.of(2025, 12, 1, 19, 30));
         vuelo5.setDuracion("1h30m");
-        vuelo5.setPrecio(210000.0);
+        vuelo5.setPrecio(300000.0);
         vuelo5.setMoneda("COP");
         vuelo5.setClase("ECONOMICA");
-        vuelo5.setDisponibilidad(10);
+        vuelo5.setDisponibilidad(2); // Poca disponibilidad para probar errores
+        vuelo5.setCapacidadTotal(180);
         vuelo5.setEstado("PROGRAMADO");
-        vuelo5.setOrigen(baq);
+        vuelo5.setOrigen(bog);
         vuelo5.setDestino(mde);
         vueloRepository.save(vuelo5);
 
-        // Crear asientos para cada vuelo
-        List<Vuelo> vuelos = List.of(vuelo1, vuelo2, vuelo3, vuelo4, vuelo5);
-        int asientoCounter = 1;
-        for (Vuelo vuelo : vuelos) {
-            for (int i = 1; i <= 10; i++) {
-                Asiento asiento = new Asiento();
-                asiento.setAsientoId("AST" + String.format("%06d", asientoCounter++));
-                asiento.setVuelo(vuelo);
-                asiento.setNumero(String.format("%02d", i) + "A");
-                asiento.setClase("ECONOMICA");
-                asiento.setEstado("DISPONIBLE");
-                asiento.setPrecio(vuelo.getPrecio());
-                asientoRepository.save(asiento);
-            }
-        }
+        // Asientos eliminados - se maneja solo por disponibilidad directa del vuelo
 
         // Crear pasajeros con clientId del ecosistema Turismo
         Pasajero pasajero1 = new Pasajero();
@@ -199,18 +193,10 @@ public class DbInit implements CommandLineRunner {
         reserva1.setObservaciones("Reserva confirmada");
         reserva1.setUrlComprobante("https://aerolinea.com/comprobantes/PNR001CONF.pdf");
         reservaRepository.save(reserva1);
-
-        // Buscar y actualizar primer asiento disponible del vuelo1
-        List<Asiento> todosAsientos1 = asientoRepository.findAll();
-        Asiento asiento1 = todosAsientos1.stream()
-            .filter(a -> a.getVuelo().equals(vuelo1) && "DISPONIBLE".equals(a.getEstado()))
-            .findFirst().orElse(null);
-        if (asiento1 != null) {
-            asiento1.setEstado("OCUPADO");
-            asiento1.setReserva(reserva1);
-            asiento1.setClientIdAsignado("CLT001JUAN");
-            asientoRepository.save(asiento1);
-        }
+        
+        // Actualizar disponibilidad del vuelo directamente
+        vuelo1.setDisponibilidad(vuelo1.getDisponibilidad() - reserva1.getNumPasajeros());
+        vueloRepository.save(vuelo1);
 
         Reserva reserva2 = new Reserva();
         reserva2.setReservaVueloId("RSV002MARI");
@@ -227,18 +213,10 @@ public class DbInit implements CommandLineRunner {
         reserva2.setObservaciones("Reserva confirmada");
         reserva2.setUrlComprobante("https://aerolinea.com/comprobantes/PNR002CONF.pdf");
         reservaRepository.save(reserva2);
-
-        // Buscar y actualizar primer asiento disponible del vuelo2
-        List<Asiento> todosAsientos2 = asientoRepository.findAll();
-        Asiento asiento2 = todosAsientos2.stream()
-            .filter(a -> a.getVuelo().equals(vuelo2) && "DISPONIBLE".equals(a.getEstado()))
-            .findFirst().orElse(null);
-        if (asiento2 != null) {
-            asiento2.setEstado("OCUPADO");
-            asiento2.setReserva(reserva2);
-            asiento2.setClientIdAsignado("CLT002MARI");
-            asientoRepository.save(asiento2);
-        }
+        
+        // Actualizar disponibilidad del vuelo directamente
+        vuelo2.setDisponibilidad(vuelo2.getDisponibilidad() - reserva2.getNumPasajeros());
+        vueloRepository.save(vuelo2);
 
         Reserva reserva3 = new Reserva();
         reserva3.setReservaVueloId("RSV003CARL");
@@ -252,16 +230,9 @@ public class DbInit implements CommandLineRunner {
         reserva3.setFechaExpiracion(LocalDateTime.now().plusMinutes(30));
         reserva3.setObservaciones("Pre-reserva pendiente");
         reservaRepository.save(reserva3);
-
-        // Buscar y bloquear primer asiento disponible del vuelo3
-        List<Asiento> todosAsientos3 = asientoRepository.findAll();
-        Asiento asiento3 = todosAsientos3.stream()
-            .filter(a -> a.getVuelo().equals(vuelo3) && "DISPONIBLE".equals(a.getEstado()))
-            .findFirst().orElse(null);
-        if (asiento3 != null) {
-            asiento3.setEstado("BLOQUEADO");
-            asiento3.setReserva(reserva3);
-            asientoRepository.save(asiento3);
-        }
+        
+        // Bloquear disponibilidad temporalmente para reserva pendiente
+        vuelo3.setDisponibilidad(vuelo3.getDisponibilidad() - reserva3.getNumPasajeros());
+        vueloRepository.save(vuelo3);
     }
 }
