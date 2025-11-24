@@ -24,11 +24,25 @@
 ### ===================================================================
 @baseUrl = http://localhost:8080
 @validVueloId = f47ac10b-58cc-4372-a567-0e02b2c3d479
-@validReservaId = RSV1764017763727203
+@validReservaId = RSV1764017015469185
 @validDocumentoCliente = 12345678
 @validClientDocument = 12345678
 @validAeropuertoOrigen = BOG
 @validAeropuertoDestino = MDE
+
+### IMPORTANTE: Para endpoints administrativos, obtenga el token JWT primero
+### 1. Ejecute el login para obtener token:
+
+POST {{baseUrl}}/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 2. Copie el token del response y reemplace @jwtToken con el valor real
+@jwtToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc2NDAxOTcyNCwiZXhwIjoxNzY0MTA2MTI0fQ.oox-tDkQ_yHn2rF1PyCl_7L0pA83djenyVJaJ1NwIKJ11Dxh01wy7tPdC6rsg9em
 
 ### ===================================================================
 ### 1. VUELO CONTROLLER - PÚBLICO (ECOSISTEMA TURISMO)
@@ -73,8 +87,9 @@ DELETE {{baseUrl}}/v1/vuelos/reservas/{{validReservaId}}
 GET {{baseUrl}}/v1/vuelos/{{validVueloId}}
 
 ### Crear vuelo (Admin) - CON ORIGEN Y DESTINO OBLIGATORIOS
-POST {{baseUrl}}/v1/vuelos
+POST {{baseUrl}}/v1/admin/vuelos
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
   "aerolinea": "Avianca",
@@ -96,8 +111,9 @@ Content-Type: application/json
 }
 
 ### Error - Crear vuelo sin origen (debe fallar)
-POST {{baseUrl}}/v1/vuelos
+POST {{baseUrl}}/v1/admin/vuelos
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
   "aerolinea": "Avianca",
@@ -116,8 +132,9 @@ Content-Type: application/json
 }
 
 ### Error - Crear vuelo con origen y destino iguales (debe fallar)
-POST {{baseUrl}}/v1/vuelos
+POST {{baseUrl}}/v1/admin/vuelos
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
   "aerolinea": "Avianca",
@@ -143,13 +160,16 @@ Content-Type: application/json
 
 ### Listar todos los aeropuertos
 GET {{baseUrl}}/v1/admin/aeropuertos
+Authorization: Bearer {{jwtToken}}
 
 ### Obtener aeropuerto específico
 GET {{baseUrl}}/v1/admin/aeropuertos/{{validAeropuertoOrigen}}
+Authorization: Bearer {{jwtToken}}
 
 ### Crear aeropuerto
 POST {{baseUrl}}/v1/admin/aeropuertos
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
   "codigoIATA": "CLO",
@@ -180,12 +200,15 @@ DELETE {{baseUrl}}/v1/admin/aeropuertos/CLO
 
 ### Listar todas las reservas
 GET {{baseUrl}}/v1/admin/reservas
+Authorization: Bearer {{jwtToken}}
 
 ### Filtrar reservas por CLIENTE ID (ESPECIAL)
 GET {{baseUrl}}/v1/admin/reservas?documentoCliente={{validDocumentoCliente}}
+Authorization: Bearer {{jwtToken}}
 
 ### Filtrar reservas por estado
 GET {{baseUrl}}/v1/admin/reservas?estado=PENDIENTE
+Authorization: Bearer {{jwtToken}}
 
 ### Filtrar reservas por vuelo
 GET {{baseUrl}}/v1/admin/reservas?vueloId={{validVueloId}}
@@ -214,6 +237,8 @@ DELETE {{baseUrl}}/v1/admin/reservas/{{validReservaId}}?motivo=Cancelación admi
 
 ### Listar todos los vuelos
 GET {{baseUrl}}/v1/admin/vuelos
+Authorization: Bearer {{jwtToken}}
+Authorization: Bearer {{jwtToken}}
 
 ### Filtrar vuelos por origen
 GET {{baseUrl}}/v1/admin/vuelos?origen={{validAeropuertoOrigen}}
@@ -223,10 +248,13 @@ GET {{baseUrl}}/v1/admin/vuelos?origen={{validAeropuertoOrigen}}&estado=PROGRAMA
 
 ### Obtener vuelo detallado
 GET {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}
+Authorization: Bearer {{jwtToken}}
+Authorization: Bearer {{jwtToken}}
 
 ### Actualizar vuelo - CON ORIGEN Y DESTINO OBLIGATORIOS
 PUT {{baseUrl}}/v1/admin/vuelos/{{validVueloId}}
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
   "vueloId": "{{validVueloId}}",

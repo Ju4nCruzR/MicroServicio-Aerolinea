@@ -1,9 +1,16 @@
 ### ===================================================================
 ### PRUEBAS HTTP PARA VUELO ADMIN CONTROLLER - ADMINISTRATIVO
+### REQUIERE AUTENTICACIÓN JWT
 ### ===================================================================
+
+### OBTENER TOKEN JWT PRIMERO:
+### POST http://localhost:8080/v1/auth/login
+### { "username": "admin", "password": "admin123" }
+### Copie el token y reemplace JWT_TOKEN_HERE con el valor real
 
 ### 1. LISTAR TODOS LOS VUELOS
 GET http://localhost:8080/v1/admin/vuelos
+Authorization: Bearer JWT_TOKEN_HERE
 
 ### 2. LISTAR VUELOS CON FILTRO POR ORIGEN
 GET http://localhost:8080/v1/admin/vuelos?origen=BOG
@@ -24,6 +31,7 @@ GET http://localhost:8080/v1/admin/vuelos?origen=BOG&destino=MDE&estado=PROGRAMA
 
 ### 7. OBTENER VUELO DETALLADO - Exitoso
 GET http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
+Authorization: Bearer JWT_TOKEN_HERE
 
 ### 8. OBTENER VUELO DETALLADO - No encontrado
 GET http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-000000000000
@@ -33,6 +41,7 @@ GET http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-000000000000
 ### 9. ACTUALIZAR VUELO - Exitoso
 PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479
 Content-Type: application/json
+Authorization: Bearer JWT_TOKEN_HERE
 
 {
   "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
@@ -169,6 +178,7 @@ DELETE http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-00000000000
 ### 15. AJUSTAR DISPONIBILIDAD - Reducir disponibilidad
 PUT http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/disponibilidad
 Content-Type: application/json
+Authorization: Bearer JWT_TOKEN_HERE
 
 {
   "nuevaDisponibilidad": 120,
@@ -206,6 +216,7 @@ Content-Type: application/json
 
 ### 19. OBTENER RESUMEN DE RESERVAS DEL VUELO
 GET http://localhost:8080/v1/admin/vuelos/f47ac10b-58cc-4372-a567-0e02b2c3d479/reservas
+Authorization: Bearer JWT_TOKEN_HERE
 
 ### 20. OBTENER RESUMEN DE RESERVAS - Vuelo inexistente
 GET http://localhost:8080/v1/admin/vuelos/00000000-0000-0000-0000-000000000000/reservas

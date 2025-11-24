@@ -4,6 +4,7 @@ import com.example.demo.entity.*;
 import com.example.demo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -25,8 +26,25 @@ public class DbInit implements CommandLineRunner {
     @Autowired
     private ReservaRepository reservaRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public void run(String... args) throws Exception {
+        // Crear usuario administrador
+        if (!usuarioRepository.existsByUsername("admin")) {
+            Usuario admin = new Usuario();
+            admin.setUsername("admin");
+            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setRole("ROLE_ADMIN");
+            admin.setActivo(true);
+            usuarioRepository.save(admin);
+            System.out.println("Usuario admin creado exitosamente");
+        }
+
         // Crear aeropuertos
         Aeropuerto bog = new Aeropuerto();
         bog.setCodigoIATA("BOG");

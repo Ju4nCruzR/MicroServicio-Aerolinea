@@ -1,0 +1,68 @@
+### ===================================================================
+### PRUEBAS HTTP PARA AUTHENTICATION CONTROLLER
+### ===================================================================
+
+### 1. LOGIN EXITOSO - Credenciales correctas
+POST http://localhost:8080/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 2. LOGIN FALLIDO - Usuario incorrecto
+POST http://localhost:8080/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "usuario_inexistente",
+  "password": "admin123"
+}
+
+### 3. LOGIN FALLIDO - Contraseña incorrecta
+POST http://localhost:8080/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "contraseña_incorrecta"
+}
+
+### 4. LOGIN FALLIDO - Campos vacíos
+POST http://localhost:8080/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "",
+  "password": ""
+}
+
+### 5. LOGIN FALLIDO - Sin datos
+POST http://localhost:8080/v1/auth/login
+Content-Type: application/json
+
+{}
+
+### ===================================================================
+### VALIDACIÓN DE TOKEN
+### ===================================================================
+
+### 6. VALIDAR TOKEN - Token válido (usar token del login exitoso)
+GET http://localhost:8080/v1/auth/validate
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc2NDAxOTcyNCwiZXhwIjoxNzY0MTA2MTI0fQ.oox-tDkQ_yHn2rF1PyCl_7L0pA83djenyVJaJ1NwIKJ11Dxh01wy7tPdC6rsg9em
+
+### 7. VALIDAR TOKEN - Token inválido
+GET http://localhost:8080/v1/auth/validate
+Authorization: Bearer token_invalido_para_prueba
+
+### 8. VALIDAR TOKEN - Sin header Authorization
+GET http://localhost:8080/v1/auth/validate
+
+### ===================================================================
+### INSTRUCCIONES:
+### 1. Ejecute primero el test de LOGIN EXITOSO
+### 2. Copie el token del response
+### 3. Reemplace "YOUR_JWT_TOKEN_HERE" con el token real
+### 4. Use ese token en todas las pruebas administrativas
+### ===================================================================
