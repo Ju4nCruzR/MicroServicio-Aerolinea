@@ -1,0 +1,3 @@
+[submodule "frontend-vite-react/aeropaila-portal"]
+	path = frontend-vite-react/aeropaila-portal
+	url = https://github.com/SantiagoVera9812/aeropaila-portal
