@@ -1,20 +1,20 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Vuelo;
-import com.example.demo.entity.Reserva;
-import com.example.demo.dto.VueloDTO;
-import com.example.demo.mapper.VueloMapper;
-import com.example.demo.repository.VueloRepository;
-import com.example.demo.repository.AeropuertoRepository;
-import com.example.demo.repository.ReservaRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import com.example.demo.dto.VueloDTO;
+import com.example.demo.entity.Vuelo;
+import com.example.demo.mapper.VueloMapper;
+import com.example.demo.repository.AeropuertoRepository;
+import com.example.demo.repository.ReservaRepository;
+import com.example.demo.repository.VueloRepository;
 
 @Service
 public class VueloService {
@@ -120,6 +120,10 @@ public class VueloService {
         if (vuelo.getFechaSalida() != null && vuelo.getFechaLlegada() != null &&
                 vuelo.getFechaSalida().isAfter(vuelo.getFechaLlegada())) {
             throw new IllegalArgumentException("La fecha de salida no puede ser posterior a la fecha de llegada");
+        }
+
+        if (vuelo.getDisponibilidad() == null && vuelo.getCapacidadTotal() != null) {
+            vuelo.setDisponibilidad(vuelo.getCapacidadTotal());
         }
 
         // Lógica de actualización si es necesaria
