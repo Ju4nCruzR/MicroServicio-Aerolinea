@@ -29,26 +29,29 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Endpoints públicos para el ecosistema de turismo
-                .requestMatchers("/v1/vuelos/buscar").permitAll()
-                .requestMatchers("/v1/vuelos/reservar").permitAll()
-                .requestMatchers("/v1/vuelos/reservas/*/confirmar").permitAll()
-                .requestMatchers("/v1/vuelos/reservas/*").permitAll() // DELETE para cancelar
-                .requestMatchers("/v1/vuelos/*").permitAll() // GET para consultar vuelo específico
-                
-                // Endpoint de autenticación
-                .requestMatchers("/v1/auth/login").permitAll()
-                
-                // H2 Console (solo para desarrollo)
+                // H2 Console (solo para desarrollo) - PRIMERO
                 .requestMatchers("/h2-console/**").permitAll()
                 
-                // Todos los endpoints administrativos requieren autenticación
+                // Endpoint de autenticación - SEGUNDO  
+                .requestMatchers("/v1/auth/login", "/v1/auth/validate").permitAll()
+                
+                // Endpoints públicos para el ecosistema de turismo - TERCERO
+                .requestMatchers("GET", "/v1/aeropuertos").permitAll()
+                .requestMatchers("GET", "/v1/aeropuertos/*").permitAll()
+                .requestMatchers("POST", "/v1/vuelos/buscar").permitAll()
+                .requestMatchers("POST", "/v1/vuelos/reservar").permitAll() 
+                .requestMatchers("PUT", "/v1/vuelos/reservas/*/confirmar").permitAll()
+                .requestMatchers("GET", "/v1/vuelos/reservas/*").permitAll()
+                .requestMatchers("DELETE", "/v1/vuelos/reservas/cancelar").permitAll()
+                .requestMatchers("GET", "/v1/vuelos/*").permitAll()
+                
+                // Endpoints administrativos requieren autenticación - CUARTO  
                 .requestMatchers("/v1/admin/**").authenticated()
                 
-                // Cualquier otra request
+                // Por defecto, todo lo demás requiere autenticación - ÚLTIMO
                 .anyRequest().authenticated()
             )
-            .headers(headers -> headers.frameOptions().disable()) // Para H2 console
+            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) // Para H2 console
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
