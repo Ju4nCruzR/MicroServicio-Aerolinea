@@ -63,7 +63,7 @@ Content-Type: application/json
 {
   "vueloId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "numPasajeros": 1,
-  "contactoReserva": "Juan Pérez",
+  "contactoReserva": "Sergio Naranjo",
   "documentoContacto": "12345678"
 }
 
@@ -94,7 +94,7 @@ Content-Type: application/json
 ### ===================================================================
 
 ### 8. CONFIRMAR RESERVA - Después del procesamiento bancario
-PUT http://localhost:8080/v1/vuelos/reservas/RSV1764014904365126/confirmar
+PUT http://localhost:8080/v1/vuelos/reservas/RSV1764102238181702/confirmar
 Content-Type: application/json
 
 {

@@ -3,7 +3,7 @@
 ### ===================================================================
 
 ### 1. LISTAR TODAS LAS RESERVAS
-GET http://localhost:8080/v1/admin/reservas
+GET http://localhost:8080/v1/admin/reservasp
 
 ### 2. LISTAR RESERVAS CON FILTRO POR ESTADO
 GET http://localhost:8080/v1/admin/reservas?estado=PENDIENTE
